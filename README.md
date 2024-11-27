@@ -7,7 +7,7 @@ Users can also export the chat in various formats or the transcribed video with 
 - Upload videos to the app
 - Transcribe and translate videos using the WhisperX model in one of the currently available languages, which are `{en, fr, de, es, it, ja, zh, nl, uk, pt}`
 - Associate transcribed sentences with their relative timestamps for easy navigation
-- Communicate with an AI using OLLama to ask questions about the transcribed video
+- Communicate with an AI using Ollama to ask questions about the transcribed video
 - Export the chat in various formats or the transcribed video with subtitles
 ## Setup
 ### Requirements
@@ -18,5 +18,68 @@ Users can also export the chat in various formats or the transcribed video with 
 **VideoWise** offers two different installation methods:
 #### 1. Simple Setup (Recommended for Quick Start)
 This method is ideal for users who want a fast and simple installation. It runs the entire application on a single machine.
-
+#### **Steps**
+1. Install the required dependencies (Ollama and Docker)
+2. Configure the Ollama API URL in the `.env` file. To do so, be sure to substitute `<your_machine_ip>` in `OLLAMA_API_URL` with the actual IP of the machine running Ollama.
+3. Run **Docker Compose** to build and start the application:
+   ```bash
+   docker-compose up --build
+   ```
+At the end of the process, you'll be able to access the application on `http://localhost:80`. 
 #### 2. Modular Setup (For Advanced Users) 
+The modular setup allows more flexibility and is ideal for separating services onto different machines (e.g., running the WhisperX transcription service on a GPU-equipped system). This setup requires manual configuration of each service.
+<br>
+- **Application Modules**
+  -  **Main Server**: Acts as a central hub for all communication between modules.
+  -  **Web UI Client**: The front-end interface for the application.
+  -  **FileSystem Server**: Manages uploaded/generated files and handles video streaming.
+  -  **Python Server**: Interfaces with WhisperX for transcription and performs file conversions (HTML to PDF/DOCX).
+  -  **DataBase Service**: PostgreSQL instance storing non-file data (e.g., chats, users).
+- **Steps** 
+  1. Install **Docker** on every machine where a service will run and **Ollama** on the one that will provide the AI chat functionality. 
+  2. Build and run the **Database Service** with:
+     ```bash
+     cd videowise-db
+     ./start_db.sh
+     ```
+  3. Build and run the **Python Service** with:
+     ```bash
+     cd videowise-python-service
+     docker build -t videowise-python-service .
+     docker run -d --name videowise-python-service -p 8000:8000 videowise-python-service
+     ```
+  4. Build and run the **FileSystem Service** with:
+     ```bash
+     cd videowise-filesystem-service
+     docker build -t videowise-filesystem-service .
+     docker run -d --name videowise-filesystem-service -p 8081:8081 videowise-filesystem-service
+     ```
+  5. Set up the Environment Variables for the **Main Server**.\
+     Edit `/videowise-main-service/Dockerfile`, lines _11-16_ and _37-42_
+     ```markdown
+     # ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" \
+     # ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" \
+     # ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" \
+     # ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" \
+     # ENV WHISPER_API_URL="http://<your_python_service_ip>:8000"
+     ```
+     uncommenting them and replacing placeholders with the appropriate IP addresses.
+  6. Build and run the **Main Server** with:
+     ```bash
+     cd videowise-main-service
+     docker build -t videowise-main-service .
+     docker run -d --name videowise-main-service -p 8080:8080 videowise-main-service
+     ```
+  7. Set up the *Main Service URL* Environment variable for the **Web UI Client**, in `/videowise-ui-client/Dockerfile`
+     ```markdown
+     # ENV MAIN_SERVICE_URL="http://<your_main_service_ip>:8080"
+     ```
+     Uncomment this line and substitute the placeholder with your machine's IP address
+  8. Build and run the **Web UI Client** with:
+     ```bash
+     cd videowise-ui-client
+     docker build -t videowise-ui-client .
+     docker run -d --name videowise-ui-client -p 80:80 videowise-ui-client
+     ```
+     
+     
