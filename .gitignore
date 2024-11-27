@@ -1,0 +1,33 @@
+################ VIDEOWISE DATABASE ################
+videowise-db/db_data/*
+
+################ VIDEOWISE FILESYSTEM SERVICE ################
+videowise-filesystem-service/uploads/*
+
+################ VIDEOWISE MAIN SERVICE ################
+videowise-main-service/.gradle/
+videowise-main-service/build/
+
+# IntelliJ
+videowise-main-service/.idea
+videowise-main-service/*.ipr
+videowise-main-service/*.iml
+videowise-main-service/*.iws
+
+# Visual Studio Code
+videowise-main-service/.vscode
+videowise-main-service/.factorypath
+
+# Local environment
+videowise-main-service/.env
+
+# Plugin directory
+videowise-main-service/.quarkus/cli/plugins/
+# TLS Certificates
+videowise-main-service/.certs/
+
+################ VIDEOWISE PYTHON SERVICE ################
+videowise-python-service/__pycache__/
+
+################ VIDEOWISE CLIENT SERVICE ################
+videowise-ui-client/.idea

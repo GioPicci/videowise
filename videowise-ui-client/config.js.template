@@ -1,0 +1,3 @@
+window.config = {
+  MAIN_SERVICE_URL: "${MAIN_SERVICE_URL}"
+};

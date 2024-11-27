@@ -1,0 +1,2589 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoWise</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!--<script src="js/app.js"></script>-->
+  <meta name="description" content="">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+  <meta property="og:image:alt" content="">
+
+  <link rel="icon" type="image/png" href="./favicon-96x96.png?v=3" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=3" />
+  <link rel="shortcut icon" href="./favicon.ico?v=3" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=3" />
+  <link rel="manifest" href="./site.webmanifest?v=3" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#fafafa">
+
+  <!-- Prism CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <!-- Prism core JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <!-- Language Style Autoloader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <script src="/config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@7.2.0/build/index.min.js"></script>
+</head>
+
+<body>
+  <!-- Left Drawer -->
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <div id="mainHeader">
+              <img src="../VideoWiseLogoBlur.png"> </img>
+              <button class="toggle-drawer" id="toggleDrawer">☰</button>
+            </div>
+            <button class="new-chat-btn" id="newChatButton">New Chat</button>
+            <div id="activeChatsContainer"></div>
+        </div>
+        <!--
+        <div class="files-section">
+            <h3>My Files</h3>
+            <div id="filesList"></div>
+        </div>
+        -->
+        <div class="user-info">
+            <div class="user-avatar" id="userMenuTrigger"></div>
+                <!-- User Menu -->
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <div class="user-menu-item" id="settingsButton" onclick="showSettingsOverlay()">
+                      Settings
+                    </div>
+                    <div class="user-menu-item logout" id="logoutButton" onclick="handleLogout()">
+                      Logout
+                    </div>
+                </div>
+            <span id="userName"></span>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="main-content">
+        <div class="chat-header">
+            <div class="chat-name-container">
+              <div class="chat-name" id="chatName">New Chat </div>
+              <button class="edit-chat-name" id="chatNameEdit"></button>
+            </div>
+            <div class="header-buttons">
+                <div class="export-container">
+                  <button class="export-chat-button txt" title="Export as PlainText" id="exportTxtBtn" style="background-image: url('txt.png')"></button>
+                  <button class="export-chat-button pdf" title="Export as PDF File" id="exportPdfBtn" style="background-image: url('pdf.png')"></button>
+                  <button class="export-chat-button word" title="Export as Word File" id="exportDocxBtn" style="background-image: url('docx.png')"></button>
+                  <button class="video-export-btn" title="Export Video with Subtitles" style="background-image: url('video_transcr_v4.png')"></button>
+                </div>
+                <label class="video-toggle-label" id="videoToggleLabel" title="Toggle video transcription">
+                    <input type="checkbox" id="videoToggleCheckbox" class="video-toggle-checkbox">
+                    <span class="toggle-text">Inject Video Context</span>
+                    <button id="injectInfo" title="When Video Context is inactive, you can converse naturally with the model.
+When active, you can ask questions about the video’s contents, but chat history context will not be used.">
+
+                    </button>
+                </label>
+                <button class="delete-chat" id="deleteChatButton" title="Delete Chat"></button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+
+        </div>
+        <div id="scroll-pins">
+        </div>
+        <div id="presetQuestionsContainer">
+          <button class="question-badge" onclick="summarizeVideo()">Summarize Transcription</button>
+          <button class="question-badge" onclick="generateDocumentation()">Generate Documentation</button>
+          <button class="question-badge" onclick="generateFAQ()">Generate FAQs</button>
+        </div>
+        <div class="input-area">
+            <textarea class="message-input" id="messageInput" placeholder="Type your message..."></textarea>
+            <button class="send-button" id="sendButton" title="Send message"></button>
+        </div>
+    </div>
+
+    <div class="resizer" id="resizer"></div>
+    <!-- Right Panel -->
+    <div class="right-panel">
+        <div id="videoLanguageContainer">
+          <label for="transcriptionLanguage" id="transcriptionLanguageLabel">Transcription Language</label>
+          <select id="transcriptionLanguage">
+              <option value="en">English</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="es">Spanish</option>
+              <option value="it">Italian</option>
+              <option value="ja">Japanese</option>
+              <option value="zh">Chinese</option>
+              <option value="nl">Dutch</option>
+              <option value="uk">Ukrainian</option>
+              <option value="pt">Portuguese</option>
+              <option value="auto">AutoDetect</option>
+          </select>
+        </div>
+        <div id="videoTitleContainer" style="display: none"></div>
+        <div class="video-container">
+            <div class="upload-area" id="uploadArea">
+                Drag and drop video here or click to upload
+            </div>
+            <video class="video-player" id="videoPlayer" controls></video>
+            <div id="videoLoader" class="loader" style="display: none;">
+                Uploading video... <div class="spinner"></div>
+            </div>
+        </div>
+        <label for="groupDuration" id="groupDurationLabel">Group timestamps in</label>
+        <select id="groupDuration">
+            <option value="0">No groups</option>
+            <option value="5">5 seconds intervals</option>
+            <option value="15" selected>15 seconds intervals</option>
+            <option value="30">30 seconds intervals</option>
+            <option value="60">1 minute interval</option>
+            <option value="180">3 minutes interval</option>
+            <option value="300">5 minutes interval</option>
+            <option value="600">10 minutes interval</option>
+        </select>
+        <div id="timestampLoader" class="loader" style="display: none;">
+            Generating transcription... <div class="spinner"></div>
+        </div>
+        <div id="timestampError" class="error" style="display: none;">
+            <div> Something went wrong with the transcription</div>
+            <button id="retryTranscription"> Try Again </button>
+        </div>
+        <div class="timestamps-container" id="timestampsContainer">
+        </div>
+    </div>
+
+
+    <!-- User Settings Menu -->
+    <div class="settings-overlay" id="settingsOverlay">
+      <div class="settings-content">
+        <div class="settings-sidebar">
+          <div class="settings-sidebar-item active" onclick="selectSubmenu('profile')">
+            General
+          </div>
+        </div>
+        <div class="settings-main">
+          <!-- Profile settings options -->
+          <div id="profileSettings" style="display: flex;">
+              <div id="defaultVideoLanguageContainer">
+                <label for="defaultTranscriptionLanguage" id="defaultTranscriptionLanguageLabel">Default Transcription Language</label>
+                <select id="defaultTranscriptionLanguage">
+                    <option value="en">English</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="es">Spanish</option>
+                    <option value="it">Italian</option>
+                    <option value="ja">Japanese</option>
+                    <option value="zh">Chinese</option>
+                    <option value="nl">Dutch</option>
+                    <option value="uk">Ukrainian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="auto">AutoDetect</option>
+                </select>
+              </div>
+              <div id="showMessagePins">
+                  <span>Assistant Message Pins</span>
+                  <input type="checkbox" id="showMessagePinsCheck">
+              </div>
+              <div id="deleteAllChats">
+                <span> Delete All Chats</span>
+                <button id="deleteAllChatsButton" onclick="showDeleteAllConfirmation()"> Delete </button>
+              </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+   <script>
+        Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
+
+        // Check if user is already logged in
+        if (!localStorage.getItem('isAuthenticated')) {
+          window.location.href = '/auth.html';
+        }
+
+        // Configuration
+        let serverApi = window.config.MAIN_SERVICE_URL; //"http://192.168.230.235:8080/api";
+        console.log("MAIN SERVICE URL:", serverApi);
+
+        // Elementi DOM
+        const drawer = document.getElementById('drawer');
+        const toggleDrawer = document.getElementById('toggleDrawer');
+        const userMenuTrigger = document.getElementById('userMenuTrigger')
+        const userMenu = document.getElementById('userMenu')
+        const defaultTranscriptionLanguageSelect = document.getElementById("defaultTranscriptionLanguage");
+        const settingsOverlay = document.getElementById("settingsOverlay");
+        const newChatButton = document.getElementById('newChatButton')
+        const deleteChatButton = document.getElementById('deleteChatButton');
+        const activeChatsContainer = document.getElementById("activeChatsContainer");
+        const chatName = document.getElementById('chatName');
+        const chatNameEdit = document.getElementById('chatNameEdit')
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const uploadArea = document.getElementById('uploadArea');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const timestampsContainer = document.getElementById('timestampsContainer');
+        const resizer = document.getElementById("resizer");
+        const mainContent = document.querySelector(".main-content");
+        const rightPanel = document.querySelector(".right-panel");
+        const contextToggleCheckbox = document.getElementById('videoToggleCheckbox');
+        const messagePinsToggleCheckbox = document.getElementById('showMessagePinsCheck');
+        const videoLoader = document.getElementById("videoLoader");
+        const timestampLoader = document.getElementById("timestampLoader");
+        const timestampError = document.getElementById("timestampError");
+        const retryTranscriptionButton = document.getElementById("retryTranscription");
+        const groupDurationLabel = document.getElementById('groupDurationLabel')
+        const groupDurationSelect = document.getElementById('groupDuration');
+        const transcriptionLanguageSelect = document.getElementById("transcriptionLanguage");
+        const videoLanguageContainer = document.getElementById("videoLanguageContainer");
+        const videoTitleContainer = document.getElementById("videoTitleContainer");
+        const usernameContainer = document.getElementById("userName")
+        const exportChatTxt = document.querySelector(".export-chat-button.txt");
+        const exportChatPdf = document.querySelector(".export-chat-button.pdf");
+        const exportChatWord = document.querySelector(".export-chat-button.word");
+        const exportVideoSub = document.querySelector(".video-export-btn");
+        const injectVideoContext = document.getElementById("videoToggleLabel");
+        const scrollPinsContainer = document.getElementById("scroll-pins");
+        const presetQuestionsContainer = document.getElementById("presetQuestionsContainer");
+
+
+        const langFlagDict = {
+            "en":"flags/en.png",
+            "fr":"flags/fr.png",
+            "de":"flags/de.png",
+            "es":"flags/es.png",
+            "it":"flags/it.png",
+            "ja":"flags/ja.png",
+            "zh":"flags/zh.png",
+            "nl":"flags/nl.png",
+            "uk":"flags/uk.png",
+            "pt":"flags/pt.png",
+            "auto": "flags/auto.png"
+        }
+
+        const langAbbrDict = {
+          "en": "English",
+          "fr": "French",
+          "de": "German",
+          "es": "Spanish",
+          "it": "Italian",
+          "ja": "Japanese",
+          "zh": "Chinese",
+          "nl": "Dutch",
+          "uk": "Ukrainian",
+          "pt": "Portuguese",
+          "auto": "Automatic",
+        }
+
+        // Variabili sessione utente
+        let currentVideoId = 0;
+        let currentVideoPath = "";
+        let currentVideoTimestamps = []
+        let currentTranscriptionLanguage = ""
+        const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName')
+
+        let userChats = []
+        let currentChat=null;
+
+        // Imposta username
+        usernameContainer.innerText = userName;
+
+        let defaultTranscriptionLanguage = "";
+
+        let groupDuration=15;
+
+        exportChatTxt.addEventListener("click", () => {
+          handleExport("txt");
+        })
+        exportChatPdf.addEventListener("click", () => {
+          handleExport("pdf");
+        })
+        exportChatWord.addEventListener("click", () => {
+          handleExport("docx");
+        })
+        exportVideoSub.addEventListener("click", () => {
+            handleVideoExport();
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const messageInput = document.getElementById("messageInput");
+
+            messageInput.addEventListener("input", function() {
+                // Resetta temporaneamente l'altezza a "auto" per calcolare la nuova altezza
+                messageInput.style.height = "36px";
+
+                // Imposta l'altezza in base al contenuto, con un massimo di 600px
+                messageInput.style.height = Math.min(messageInput.scrollHeight, 350) + "px";
+            });
+        });
+
+        function getScrollbarArrowHeight(container) {
+          // Get the total scrollbar height
+          const scrollbarHeight = container.clientHeight - container.scrollHeight;
+
+          return scrollbarHeight / 2;
+        }
+        function calculateScrollArea(container) {
+          const containerHeight = container.offsetHeight; // Visible height of the container
+          const scrollHeight = container.scrollHeight;    // Total scrollable content height
+          const scrollbarArrowHeight = getScrollbarArrowHeight(container); // Use earlier function
+
+          // Effective scrollable area height
+          return containerHeight - 2 * scrollbarArrowHeight; // Subtract top and bottom arrows
+        }
+
+        async function getUserDefaultTranscriptionLanguage(userId) {
+            try{
+                const response = await fetch(serverApi+"/preferences/"+userId+"/transcription-language");
+                    if (response.ok) {
+                        const preference = await response.json();
+                        defaultTranscriptionLanguage = preference.preferenceValue;
+                    } else if (response.status === 404) {
+                        console.log("No transcription-language variable found");
+                        defaultTranscriptionLanguage = "en"
+                    } else {
+                        console.error("transcription-language value recovery failed: ", response);
+                        defaultTranscriptionLanguage = "en"
+                    }
+                    defaultTranscriptionLanguageSelect.value = defaultTranscriptionLanguage;
+              } catch (error) {
+                  console.error("Error while asking the user's default transcription language to the server:", error);
+                  return null;
+            }
+        }
+
+        async function updateUserDefaultTranscriptionLanguage(userId, language) {
+            const languageUpdateRequest = {
+              "userId": userId,
+              "preferences": [
+                {
+                  "key": "transcription-language",
+                  "value": language
+                }
+              ]
+            }
+            try{
+                const response = await fetch(serverApi+"/preferences", {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(languageUpdateRequest)
+                });
+                    if (response.ok) {
+                        defaultTranscriptionLanguage = language;
+                        transcriptionLanguageSelect.value = language;
+                    } else if (response.status === 404) {
+                        console.log("No transcription-language variable found");
+                    } else {
+                        console.error("transcription-language value update failed: ", response);
+                    }
+              } catch (error) {
+                  console.error("Error while updating the user's default transcription language to the server:", error);
+                  return null;
+            }
+        }
+
+        async function getUserMessagePinPreference(userId) {
+            try {
+                  const response = await fetch(serverApi+"/preferences/"+userId+"/assistant-message-pins");
+                      if (response.ok) {
+                          const preference = await response.json();
+                          messagePinsToggleCheckbox.checked = preference.preferenceValue === "true";
+                      } else if (response.status === 404) {
+                          console.log("No transcription-language variable found");
+                          messagePinsToggleCheckbox.checked = true;
+                      } else {
+                          console.error("transcription-language value recovery failed: ", response);
+                          messagePinsToggleCheckbox.checked = true;
+                      }
+                      messagePinsToggleCheckbox.className = "recovered";
+                } catch (error) {
+                    console.error("Error while asking the user's default transcription language to the server:", error);
+                    return null;
+            }
+        }
+
+        async function updateUserMessagePinPreference(userId, isActive) {
+            const pinPreferenceUpdateRequest = {
+                "userId": userId,
+                "preferences": [
+                  {
+                    "key": "assistant-message-pins",
+                    "value": isActive + ""
+                  }
+                ]
+              }
+              try{
+                  const response = await fetch(serverApi+"/preferences", {
+                      method: "PATCH",
+                      headers: {
+                        "Content-Type": "application/json"
+                      },
+                      body: JSON.stringify(pinPreferenceUpdateRequest)
+                  });
+                      if (response.ok) {
+                          return true;
+                      } else if (response.status === 404) {
+                          console.log("No assistant-message-pins variable found");
+                      } else {
+                          console.error("assistant-message-pins value update failed: ", response);
+                      }
+                } catch (error) {
+                    console.error("Error while updating the user's preference on message pins to the server:", error);
+                    return null;
+              }
+        }
+
+        userMenuTrigger.addEventListener("click", () => {
+            userMenu.style.display = userMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        function showSettingsOverlay() {
+          //console.log("Show Settings overlay");
+          userMenu.style.display = 'none';
+          settingsOverlay.classList.add('show');
+        }
+
+        function hideSettingsOverlay() {
+          //console.log("Hide Settings overlay");
+          settingsOverlay.classList.remove('show');
+        }
+
+        document.addEventListener("click", (e) => {
+            if (userMenu.style.display === "block" &&
+              !userMenuTrigger.contains(e.target) &&
+              e.target !== userMenuTrigger) {
+                //console.log("Hide menu");
+                userMenu.style.display = "none";
+            }
+            const confirmDialog = document.getElementsByClassName("confirm-dialog");
+        })
+
+        settingsOverlay.addEventListener('click', (event) => {
+          if (event.target === settingsOverlay) {
+            hideSettingsOverlay();
+          }
+        });
+
+        defaultTranscriptionLanguageSelect.addEventListener('change', async () => {
+            await updateUserDefaultTranscriptionLanguage(userId, defaultTranscriptionLanguageSelect.value);
+        })
+
+        messagePinsToggleCheckbox.addEventListener('change', async () => {
+            await updateUserMessagePinPreference(userId, messagePinsToggleCheckbox.checked);
+            addPinsToScrollbar();
+        });
+
+        function handleLogout() {
+            localStorage.clear();
+            window.location.href = 'auth.html';
+        }
+
+        function selectSubmenu(submenu) {
+          document.querySelectorAll('.settings-sidebar-item').forEach(item => {
+            item.classList.remove('active');
+          });
+          document.querySelector(`.settings-sidebar-item[onclick="selectSubmenu('${submenu}')"]`).classList.add('active');
+
+          document.getElementById(`${submenu}Settings`).style.display = 'flex';
+          document.querySelectorAll('.settings-main > div').forEach(item => {
+            if (item.id !== `${submenu}Settings`) {
+              item.style.display = 'none';
+            }
+          });
+        }
+
+        const exportChatImgData = [
+          {
+            "type": "plaintext",
+            "url": "txt.png",
+            "tooltip": "Export as PlainText"
+          },
+          {
+            "type": "pdf",
+            "url": "pdf.png",
+            "tooltip": "Export as PDF File"
+          },
+          {
+            "type": "word",
+            "url": "docx.png",
+            "tooltip": "Export as Word File"
+          }
+        ]
+
+        // Function to create image buttons
+        function createExportMsgButton(src, type, message) {
+          const button = document.createElement('button');
+          const ripple = document.createElement('span');
+          ripple.classList.add("ripple");
+          button.appendChild(ripple);
+          button.className = 'export-msg-button';
+          button.style.backgroundImage = `url(${src})`;
+          switch (type) {
+            case "plaintext":
+              button.addEventListener('click', () => {
+                const currentContent = message.innerHTML;
+                exportAsTXT([{
+                    "role": 'assistant',
+                    "content": currentContent
+                }]);
+              });
+              break;
+            case "pdf":
+              button.addEventListener('click', () => {
+                const currentContent = message.innerHTML;
+                exportAsPDF([{
+                    "role": 'assistant',
+                    "content": currentContent
+                }]);
+              });
+              break;
+            case "word":
+              button.addEventListener('click', () => {
+                const currentContent = message.innerHTML;
+                exportAsDOCX([{
+                    "role": 'assistant',
+                    "content": currentContent
+                }]);
+              });
+              break;
+          }
+          return button;
+        }
+
+        function createCopyMsgButton(src, message) {
+            const button = document.createElement('button');
+            button.className = 'export-msg-button copy-button';
+            button.title = "Copy to Clipboard"
+            button.style.backgroundImage = `url(${src})`;
+
+            button.addEventListener('click', () => {
+                const currentContent = message.innerHTML;
+                navigator.clipboard.writeText(convertHtmlToPlainText(currentContent).replace(/\n+$/, ''))
+                    .then(() => {
+                        console.log('Content copied to clipboard!');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+            });
+
+            return button;
+        }
+
+        groupDurationSelect.addEventListener('change', () => {
+          groupDuration = parseInt(groupDurationSelect.value);
+          populateTimestamps(currentVideoTimestamps, groupDuration);
+        });
+
+        transcriptionLanguageSelect.addEventListener('change', () => {
+          //console.log("Update lingua transcrizione del video corrente:", transcriptionLanguageSelect.value)
+          currentTranscriptionLanguage = transcriptionLanguageSelect.value;
+        });
+
+
+        // Cambia chat attiva
+        async function changeActiveChat(chat) {
+            if (currentChat === chat)
+                return;
+            if (currentChat != null) {
+                const previousChatBtn = document.querySelector(`.chat-button.id-${currentChat.id}`);
+                previousChatBtn.classList.remove("selected");
+            }
+
+            if(defaultTranscriptionLanguage === "") {
+              await getUserDefaultTranscriptionLanguage(userId);
+            }
+            if(!messagePinsToggleCheckbox.classList.contains("recovered")) {
+              await getUserMessagePinPreference(userId);
+            }
+
+            //console.log("lingua di default utente:", defaultTranscriptionLanguage);
+            // Resetta i loader e messaggi di errore per Video e Trascrizioni
+            videoLoader.style.display = "none";
+            timestampLoader.style.display = "none";
+            timestampError.style.display = "none";
+            
+            // Nascondo le domande preimpostate preventivamente
+            presetQuestionsContainer.style.display = "none";
+
+            // Nascondi il selettore per raggruppamento dei timestamp preventivamente, in caso non ce ne siano
+            groupDurationSelect.style.display = "none";
+            groupDurationLabel.style.display = "none";
+            // Nascondi il checkbox per iniezione del contento del video preventivamente
+            injectVideoContext.classList.remove("active");
+            // Nascondi il selettore di lingua di trascrizione preventivamente. Serve se nessun video è stato caricato o
+            // se non è stato trascritto.
+            videoLanguageContainer.style.display = "none";
+            // Nascondi titolo del video preventivamente
+            videoTitleContainer.style.display = "none";
+
+            // Imposta come chat corrente, imposta il titolo
+            currentChat = chat;
+            chatName.textContent = currentChat.title;
+            // Imposta la lingua di trascrizione del video, se non è stata già impostata (da implementare)
+            currentTranscriptionLanguage = defaultTranscriptionLanguage;
+            transcriptionLanguageSelect.value = defaultTranscriptionLanguage;
+            // Elimina le track dei sottotitoli che potrebbero essere rimaste da video precedenti
+            removeSubtitles();
+            // Cambia colore del bottone chat per far capire quale è selezionata
+            const currentChatBtn = document.querySelector(`.chat-button.id-${currentChat.id}`);
+            currentChatBtn.classList.add("selected");
+            if(!currentChat.chat_msg)
+              currentChat.chat_msg = await getChatMessages(currentChat.id);
+            // Recupera messaggi della chat
+            populateChatMessages();
+            // Riprendi streaming del messaggio dell'assistente se è stato interrotto mentre stava scrivendo.
+            resumeBackgroundStreams();
+            // Recupera il video, se disponibile
+            const video = await getChatVideo(currentChat.id);
+
+            //const videoId = await getChatVideoId(currentChat.id);
+            if(!video) {
+                videoPlayer.src="";
+                videoPlayer.style.display = 'none';
+                uploadArea.style.display = 'flex';
+                videoLoader.style.display = "none";
+                videoLoader.innerHTML = "";
+                videoLanguageContainer.style.display = "flex";
+                populateTimestamps([]);
+                return;
+            }
+            const videoId = video.id;
+            const videoStatus = video.status;
+            const videoTitle = video.videoTitle;
+            currentVideoId = videoId;
+            if (videoStatus === "UPLOADING") {
+                videoPlayer.src="";
+                videoPlayer.style.display = 'none';
+                uploadArea.style.display = "none";
+                videoLoader.style.display = "flex";
+                videoLoader.innerHTML = "<div class=\"spinner\"></div> Uploading Video... ";
+                populateTimestamps([]);
+                pollForVideoUpload(100, currentVideoId, currentChat.id);
+                return;
+            }
+            // Recupera l'url per lo stream del video, se disponibile
+            const videoStreamingUrl = await getVideoStreamingUrl(videoId);
+            if (videoStreamingUrl === "")
+                return;
+            // Recupera la trascrizione del video in formato timestamp, se disponibile
+            const transcription = await getVideoTranscription(videoId);
+            const currentVideoTimestampsId = transcription.id;
+            currentVideoTimestamps = transcription.timestamps;
+            currentTranscriptionLanguage = transcription.language;
+            const currentVideoTimestampsStatus = transcription.status;
+            console.log("Transcription: ", transcription)
+            populateTimestamps(currentVideoTimestamps);
+            if (currentVideoTimestampsStatus === "PROCESSING") {
+                  timestampLoader.style.display = "flex";
+                  pollForTranscriptionExtraction(100, currentVideoId, currentVideoTimestampsId)
+            } else if (currentVideoTimestampsStatus === "ERROR" || currentVideoTimestampsStatus === "MISSING") {
+                  videoLanguageContainer.style.display = "flex";
+                  timestampError.style.display = "flex";
+            } else {
+                // Mostra il selettore per raggruppamento di timestamp
+                console.log("Timestamp disponibili, scarico subtitles");
+                // Mostro groupDuration, label per context injection e domande preimpostate
+                presetQuestionsContainer.style.display = "flex";
+                groupDurationSelect.style.display = "block";
+                groupDurationLabel.style.display = "block";
+                injectVideoContext.classList.add("active");
+                await addSubtitles(currentVideoId, currentTranscriptionLanguage);
+            }
+            // Imposta lo stream del video all'URL che ho trovato
+            videoTitleContainer.style.display = "flex";
+            videoTitleContainer.innerHTML = `<span title=${videoTitle}>${videoTitle}</span>
+                                             <img class="transcriptionLangFlag"
+                                                  src='${langFlagDict[currentTranscriptionLanguage]}'
+                                                  title='Transcription Language is ${langAbbrDict[currentTranscriptionLanguage]}'
+                                             >`;
+            videoPlayer.src=videoStreamingUrl;
+            videoPlayer.style.display = 'block';
+            uploadArea.style.display = 'none';
+        }
+
+        async function getChatMessages(chatId) {
+            try{
+                const response = await fetch(serverApi+"/chats/"+chatId);
+                    if (response.ok) {
+                        const chat = await response.json();
+                        return chat.chat_msg;
+                    } else if (response.status === 404) {
+                        console.log("No chat with the given id");
+                        return null;
+                    } else {
+                        console.error("Chat retrieval failed: ", response);
+                        return null;
+                    }
+              } catch (error) {
+                  console.error("Error while asking the current chat content to the server:", error);
+                  return null;
+            }
+        }
+
+        function restoreDefaultChatContext() {
+            chatName.textContent = "";
+            videoPlayer.src="";
+            videoPlayer.style.display = 'none';
+            uploadArea.style.display = 'flex';
+        }
+
+        // Recupera i dati un video caricato nella chat, funziona solo con 1 per ora
+        async function getChatVideo(chatId) {
+            try{
+                const response = await fetch(serverApi+"/videos/chat/"+chatId);
+                if (response.ok) {
+                    const videos = await response.json();
+                    if(videos.length === 0) {
+                      console.log("No video has been uploaded to this chat yet");
+                      return null;
+                    }
+                    return videos[0];
+                } else if (response.status === 404) {
+                    console.log("No video has been uploaded to this chat yet");
+                    return null;
+                } else {
+                    console.error("Chat videos retrieval failed: ", response);
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error while asking the current chat videos to the server:", error);
+                return null;
+            }
+        }
+
+        function pollForVideoUpload(maxPolls, videoId, chatId) {
+            let pollCount = 0; // Initialize poll count
+
+            videoLoader.style.display = "flex";
+            videoLoader.innerHTML = "<div class=\"spinner\"></div> Uploading Video... ";
+            // Polling function
+            async function fetchServerData() {
+                try {
+                    const response = await fetch(serverApi+"/videos/status/"+videoId);
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    const videoStatus = await response.text();
+                    console.log("Polling Result:", videoStatus);
+                    if (videoStatus === "UPLOADED") {
+                        console.log("Video has been uploaded successfully");
+                        // Nascondo loader del video
+                        videoLoader.style.display = "none";
+                        const videoStreamingUrl = await getVideoStreamingUrl(videoId);
+                        if (videoId === currentVideoId) {
+                            // Se l'utente sta aspettando il caricamento del video sulla chat, imposta lo stream del
+                            // video appena termina l'upload
+                            videoPlayer.src=videoStreamingUrl;
+                            videoPlayer.style.display = 'block';
+                            uploadArea.style.display = 'none';
+                        }
+                        // Comincia la trascrizione
+                        await transcribeVideo(chatId, videoId, currentTranscriptionLanguage);
+                        // Stop polling once the video is uploaded
+                        clearInterval(intervalId);
+                    }
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                }
+            }
+
+            // Start polling every 3 seconds (3000 milliseconds)
+            const intervalId = setInterval(() => {
+                if (pollCount < maxPolls) { // Check if the limit is reached
+                    fetchServerData();
+                    pollCount++; // Increment the poll count
+                } else {
+                    clearInterval(intervalId); // Stop polling
+                    console.log("Stopped polling after", maxPolls, "polls.");
+                }
+            }, 3000);
+        }
+
+        function pollForTranscriptionExtraction(maxPolls, videoId, transcriptionId) {
+            let pollCount = 0; // Initialize poll count
+            console.log("Polling per la trascrizione con id:", transcriptionId)
+
+            // Polling function
+            async function fetchServerData() {
+                try {
+                    const response = await fetch(serverApi+"/transcriptions/status/"+transcriptionId);
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    const transcriptionStatus = await response.text();
+                    console.log("Polling Result:", transcriptionStatus);
+                    if (transcriptionStatus === "COMPLETED") {
+                        console.log("Video Transcription has been extracted successfully, recovering from server");
+                        const transcription = await getVideoTranscription(videoId);
+                        const timestamps = transcription.timestamps;
+                        if(currentVideoId === videoId) {
+                            // Se l'utente sta aspettando la trascrizione sulla chat devo togliere il loader appena ho finito
+                            // e mostrare la select per il raggruppamento di timestamp. Inoltre scarico i sottotitoli per il video
+                            if(videoId === currentVideoId) {
+                                // Riattivo domande preimpostate, group duration e checkbox per video context injection
+                                presetQuestionsContainer.style.display = "flex";
+                                timestampLoader.style.display = "none";
+                                groupDurationSelect.style.display = "block";
+                                groupDurationLabel.style.display = "block";
+                                injectVideoContext.classList.remove("active");
+                                await addSubtitles(currentVideoId, currentTranscriptionLanguage);
+                            }
+                            currentVideoTimestamps = timestamps;
+                            populateTimestamps(currentVideoTimestamps)
+                        }
+                        // Stop polling once the video is uploaded
+                        clearInterval(intervalId);
+                    } else if (transcriptionStatus === "ERROR") {
+                        if(currentVideoId === videoId) {
+                          // Se l'utente sta aspettando la trascrizione sulla chat e vado in errore devo togliere il
+                          // loader e mostrare l'errore
+                            if(videoId === currentVideoId) {
+                                timestampLoader.style.display = "none";
+                                timestampError.style.display = "flex";
+                            }
+                        }
+                        console.error("Video Transcription has failed")
+                        videoLoader.innerText = "Transcription failed, try again.";
+                        clearInterval(intervalId);
+                    }
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                }
+            }
+
+            // Start polling every 3 seconds (3000 milliseconds)
+            const intervalId = setInterval(() => {
+                if (pollCount < maxPolls) { // Check if the limit is reached
+                    fetchServerData();
+                    pollCount++; // Increment the poll count
+                } else {
+                    clearInterval(intervalId); // Stop polling
+                    console.log("Stopped polling after", maxPolls, "polls.");
+                }
+            }, 3000);
+        }
+
+        async function getVideoStreamingUrl(videoId) {
+            try {
+                const response = await fetch(serverApi+"/videos/"+videoId);
+                if (response.ok) {
+                    const videoStreamUrl = await response.text();
+                    return videoStreamUrl;
+                } else {
+                  console.error("Video stream retrieval failed", response)
+                  return "";
+                }
+            } catch (error) {
+                console.error("Error while retrieving the video stream url from the server:", error);
+                return "";
+            }
+        }
+
+        function truncateTitle(title, maxLen) {
+            if(title.length > maxLen)
+              return title.substring(0, maxLen)+"...";
+            else
+              return title;
+        }
+
+        function populateChatList() {
+            // Clear the filesList container before adding buttons (optional)
+            activeChatsContainer.innerHTML = '';
+            userChats.sort((a, b) => b.id - a.id);
+
+            // Iterate over each chat in userChats array
+            userChats.forEach(chat => {
+                // Create a new button element
+                const chatButton = document.createElement('button');
+                const deleteChatButton = document.createElement('button');
+                deleteChatButton.className = 'delete-chat-side';
+                deleteChatButton.title = 'Delete Chat';
+                deleteChatButton.innerText = '🗑️';
+                deleteChatButton.addEventListener("click", () => {
+                  showDeleteConfirmation();
+                })
+                // Set button's text to the chat title
+                chatButton.innerHTML = "<div>" + chat.title + "</div>";// + "<button class='delete-chat-side'> 🗑️ </button>";
+                chatButton.title = chat.title;
+                chatButton.appendChild(deleteChatButton);
+                // Add a class to the button for styling (optional)
+                chatButton.className = `chat-button id-${chat.id}`;
+
+                // Optionally, you can add an event listener if you want to handle button clicks
+                chatButton.addEventListener('click', () => {
+                    changeActiveChat(chat)
+                    // Add additional functionality here, like opening the chat
+                });
+
+                // Append the button to the filesList div
+                activeChatsContainer.appendChild(chatButton);
+            });
+        }
+
+        function updateChatList(chat) {
+            for (let i = 0; i < userChats.length; i++) {
+                if (userChats[i].id === chat.id) {
+                    userChats[i] = chat;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        let isDrawerClosed=false;
+        // Toggle drawer
+        toggleDrawer.addEventListener('click', () => {
+            drawer.classList.toggle('closed');
+            isDrawerClosed = drawer.classList.contains('closed');
+            resizer.click()
+            //updateMainContentWidth();
+        });
+
+        retryTranscriptionButton.addEventListener('click', () => {
+            transcribeVideo(currentChat.id, currentVideoId, currentTranscriptionLanguage);
+        })
+
+        // Create new chat
+        newChatButton.addEventListener('click', () => {
+            createNewChat(userId);
+        })
+
+        deleteChatButton.addEventListener('click', () => {
+            showDeleteConfirmation();
+        })
+
+        function editChatName() {
+          const input = document.createElement('input');
+            input.className = 'chat-name-input';
+            input.value = chatName.textContent;
+            chatName.parentNode.replaceChild(input, chatName);
+            input.focus();
+
+            input.addEventListener('blur', () => {
+                chatName.textContent = input.value;
+                currentChat.title = input.value;
+                updateChatTitle(currentChat.id, input.value);
+                if (updateChatList(currentChat))
+                    populateChatList();
+                input.parentNode.replaceChild(chatName, input);
+
+            });
+
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                }
+            });
+        }
+
+        // Chat name editing
+        chatName.addEventListener('click', () => editChatName());
+        chatNameEdit.addEventListener('click', () => editChatName());
+
+        async function updateChatTitle(chat_id, title) {
+            const newChatTitle = {
+              "title": title
+            }
+
+            try {
+                const response = await fetch(serverApi + "/chats/"+chat_id, {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(newChatTitle)
+                });
+
+                if (response.ok) {
+                    console.log("Title update success");
+                } else {
+                    console.log("Chat title update failed");
+                }
+            } catch (error) {
+                console.log("Error while sending chat title update request to the server:", error);
+            }
+        }
+
+        // Upload video to server
+        async function uploadVideo(video, title, chat_id) {
+            videoPlayer.src="";
+            videoPlayer.style.display = 'none';
+            uploadArea.style.display = "none";
+            videoLoader.style.display = "flex";
+            videoLoader.innerHTML = "<div class=\"spinner\"></div> Uploading Video... ";
+
+            const formData = new FormData();
+            formData.append("chat_id", chat_id);
+            formData.append("file", video);
+            formData.append("title", title);
+            formData.append("metadata", "");
+            try {
+                const response = await fetch(serverApi + "/videos", {
+                    method: "POST",
+                    body: formData
+                });
+
+                // Check if the response is successful
+                if (response.ok) {
+                    const result = await response.json();
+                    currentVideoId = result.id;
+                    currentVideoPath = result.filename;
+                    console.log("Video upload submitted successfully:", result);
+                    pollForVideoUpload(100, currentVideoId, currentChat.id);
+                } else {
+                    console.error("Video upload submission failed:", response.statusText);
+                }
+            } catch (error) {
+              console.error("Error while uploading video to the server:", error);
+            }
+        }
+
+        async function transcribeVideo(chatId, videoId, language) {
+            try {
+                console.log("Starting video transcription with language:", language);
+                // Nel caso fosse visibile il messaggio di errore nella trascrizione, lo nascondo
+                timestampError.style.display = "none";
+                // Mostro invece il loader
+                timestampLoader.style.display = "flex";
+                // Nascondo la lingua di trascrizione, troppo tardi per cambiarla!
+                videoLanguageContainer.style.display = "none"
+                // Nascondo i menu per raggruppamento in timestamp
+                groupDurationSelect.style.display = "none";
+                groupDurationLabel.style.display = "none";
+                const formData = new FormData();
+                formData.append("chatId", chatId);
+                formData.append("videoId", videoId);
+                formData.append("language", language);
+                const response = await fetch(serverApi + "/transcriptions/transcribe", {
+                    method: "POST",
+                    body: formData
+                })
+                if (response.ok) {
+                    console.log("Video transcription request successful, starting polling")
+                    const transcriptionId = await response.text();
+                    pollForTranscriptionExtraction(100, videoId, transcriptionId);
+                } else {
+                    console.log("Video transcription request successful, starting polling")
+                }
+
+            } catch(error) {
+                console.error("Error while requesting video transcription the server:", error);
+            }
+        }
+
+        function convertToFormattedTimestamps(data) {
+            // Helper function to convert seconds to MM:SS format
+            function secondsToTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                // Pad with zero if seconds is a single digit
+                return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+            }
+
+            return data.map(item => ({
+                time: secondsToTime(item.start), // Format start time to MM:SS
+                text: item.text                   // Copy the text as-is
+            }));
+        }
+
+        // Get transcription of video
+        async function getVideoTranscription(videoId) {
+            try {
+                console.log("Starting transcription recovery for video", videoId);
+                const response = await fetch(serverApi + "/transcriptions/video/" + videoId);
+                if (response.ok) {
+                    const data = await response.json();
+                    //console.log("Transc respo", data);
+                    data.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+                    console.log("getVideoTranscription DATA", data);
+                    const transcriptionObject = data[data.length - 1];
+                    const id = transcriptionObject.id;
+                    const status = transcriptionObject.status;
+                    const language = transcriptionObject.language;
+                    if (transcriptionObject.transcription === null) {
+                        return {
+                          "id": id,
+                          "timestamps": [],
+                          "status": status,
+                          "language": language
+                        };
+                    }
+                    const transcription = JSON.parse(transcriptionObject.transcription);
+                    //console.log("Transcription: ", transcription, "lang", language);
+                    return {
+                       "id": id,
+                      "timestamps": convertToFormattedTimestamps(transcription.segments),
+                      "status": status,
+                      "language": language
+                    };
+                } else {
+                    console.log("Video transcription results request failed");
+                    return {
+                       "id": 0,
+                      "timestamps": [],
+                      "status": "MISSING",
+                      "language": ""
+                    };
+                }
+            } catch(error) {
+                console.error("Error while requesting video transcription results the server:", error);
+                return {
+                     "id": 0,
+                    "timestamps": [],
+                    "status": "MISSING",
+                    "language": ""
+                };
+            }
+        }
+
+        function handleExportHover(msgId) {
+            const exportButtonContainer = chatMessages.querySelector(`.export-msg-button-container.id${msgId}`);
+            const msgContainer = chatMessages.querySelector(`.message.assistant.id${msgId}`)
+
+            msgContainer.addEventListener("mouseenter", () =>{
+                exportButtonContainer.classList.add("hovered");
+                exportButtonContainer.classList.remove("unhovered");
+            });
+            msgContainer.addEventListener("mouseleave", () =>{
+                exportButtonContainer.classList.add("unhovered");
+                exportButtonContainer.classList.remove("hovered");
+            });
+            exportButtonContainer.addEventListener("mouseenter", () =>{
+                exportButtonContainer.classList.add("hovered");
+                exportButtonContainer.classList.remove("unhovered");
+            });
+            exportButtonContainer.addEventListener("mouseleave", () =>{
+                exportButtonContainer.classList.add("unhovered");
+                exportButtonContainer.classList.remove("hovered");
+            });
+
+        }
+
+        // Send message
+        function addMessage(content, isUser, triggerResponse=false, triggerSave=true) {
+            //console.log("Contenuto chat CONTENT", content);
+            //console.log("Contenuto chat CURRENT CHAT", currentChat)
+            const messageDiv = document.createElement('div');
+            const msgCount = chatMessages.querySelectorAll('div').length;
+            //console.log("Numero messaggi", msgCount, currentChat);
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'} id` + msgCount;
+
+            let exportMessageButtonContainer;
+
+            if(!isUser) {
+              exportMessageButtonContainer = document.createElement('div');
+              exportMessageButtonContainer.className = "export-msg-button-container unhovered id" + msgCount;
+
+              const copyButton = createCopyMsgButton("copy_to_clipboar.png", messageDiv)
+              exportChatImgData.forEach((data) => {
+                  const expButton = createExportMsgButton(data.url, data.type, messageDiv);
+                  expButton.title = data.tooltip;
+                  exportMessageButtonContainer.appendChild(expButton);
+              })
+              exportMessageButtonContainer.appendChild(copyButton);
+            } else {
+              content = content.replace(/\n/g, '<br>');
+            }
+            messageDiv.innerHTML = content;
+
+            //console.log("messaggio formattato", formatAIMessage(content));
+            chatMessages.appendChild(messageDiv);
+            if(!isUser) {
+              chatMessages.appendChild(exportMessageButtonContainer);
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            if(!isUser)
+              handleExportHover(msgCount);
+
+
+            if(isUser && triggerSave)
+                saveChatMessages(currentChat);
+            if(triggerResponse)
+                streamAssistantResponse();
+            return messageDiv;
+        }
+
+        function buildContextMessage() {
+            const messageTemplate = (videoTranscription, userQuestion) => `
+ROLE OF THE MODEL:
+You are an AI assistant specialized in analyzing video transcripts in the same language as the asked question. Your task is to aid in understanding content extracted from natural conversations.
+
+RESPONSE GUIDELINES:
+- Respond EXCLUSIVELY in the same language of the asked question, even if it's not the same as the transcription's
+- Use ONLY the information present in the provided transcript
+- For long content, identify and focus on the parts relevant to the question
+- Provide a thorough and well-structured response, focusing on comprehensive detail wherever possible.
+- If information is not present in the transcript, explicitly state this
+- Maintain language appropriate to the context
+- You may quote directly from the transcript when relevant
+- If the content is extensive, offer a general answer and the option to explore specific aspects further
+
+CONTEXT:
+- The user is authorized to access all contained information
+- The transcript may be long or short
+- The content may cover any topic
+
+TRANSCRIPT:
+${videoTranscription}
+
+QUESTION:
+${userQuestion}
+
+ANSWER:
+`;
+            if(currentVideoTimestamps.length > 0) {
+                let videoTranscription = "";
+                currentVideoTimestamps.forEach((paragraph) => {
+                    videoTranscription += "\n" + paragraph.text;
+                });
+                const userMessages = chatMessages.querySelectorAll('div');
+                const userQuestion = userMessages[userMessages.length-1].innerHTML;
+                //console.log("Template fillato con lingua:", currentTranscriptionLanguage==="auto" ? "the same language as the video" : langAbbrDict[currentTranscriptionLanguage])
+                return [
+                    {
+                        "role": "user",
+                        "content": messageTemplate(videoTranscription, userQuestion)
+                    }
+                ];
+            }
+            return [];
+        }
+
+        function formatAIMessage(response) {
+            // Store code blocks temporarily with unique placeholders
+            const codeBlocks = [];
+            const inlineCodeBlocks = [];
+
+            // Function to generate unique placeholder
+            const generatePlaceholder = (prefix, index) => `__${prefix}_${index}__`;
+
+            // Function to sanitize HTML tags (except for HTML code blocks)
+            const sanitizeCodeContent = (code, language) => {
+                if (language && language.toLowerCase() === 'html') {
+                    return code;
+                }
+                return code.replace(/<[^>]+>/g, '');
+            };
+
+            // First, extract and store multiline code blocks
+            let tempResponse = response.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                const index = codeBlocks.length;
+                const sanitizedCode = sanitizeCodeContent(code.trim(), lang);
+                codeBlocks.push({ language: lang, code: sanitizedCode });
+                console.log("Codice sanificato", codeBlocks)
+                return generatePlaceholder('codeblock', index);
+            });
+
+            // Then extract and store inline code blocks
+            tempResponse = tempResponse.replace(/`([^`]+)`/g, (match, code) => {
+                const index = inlineCodeBlocks.length;
+                const sanitizedCode = sanitizeCodeContent(code, null);
+                inlineCodeBlocks.push(sanitizedCode);
+                return generatePlaceholder('inlinecode', index);
+            });
+            let formattedResponse  = tempResponse
+                // Convert regular bold text
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                // Convert *italic text* to <em>
+                .replace(/\*(.*?)\*/g, "<em>$1</em>")
+                // Convert ~~strikethrough~~ to <del>
+                .replace(/~~(.*?)~~/g, "<del>$1</del>")
+                // Convert # Title to <h1>
+                .replace(/^# (.*?)$/gm, "<h1>$1</h1>")
+                // Convert ## Title to <h2>
+                .replace(/^## (.*?)$/gm, "<h2>$1</h2>")
+                // Convert ### Title to <h3>
+                .replace(/^### (.*?)$/gm, "<h3>$1</h3>")
+                // Convert #### Title to <h4>
+                .replace(/^#### (.*?)$/gm, "<h4>$1</h4>")
+                // Convert > Quote to <blockquote>
+                .replace(/^\> (.*?)$/gm, "<blockquote>$1</blockquote>")
+                // Convert [text](url) to <a href="url">text</a>
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g, '<a href="$2">$1</a>')
+                // Convert images ![alt](url) to <img alt="alt" src="url">
+                .replace(/!\[([^\]]*)\]\((https?:\/\/[^\s]+)\)/g, '<img alt="$1" src="$2">')
+                // Convert horizontal rules (--- or ***) to <hr>
+                .replace(/^([-*]){3,}$/gm, "<hr>");
+
+            formattedResponse = formattedResponse.replace(/__codeblock_(\d+)__/g, (match, index) => {
+                const { language, code } = codeBlocks[index];
+                const languageClass = language ? ` class="language-${language}"` : '';
+                return `<pre><code${languageClass}>${code}</code></pre>`;
+            })
+              .replace(/__inlinecode_(\d+)__/g, (match, index) => {
+                return `<code>${inlineCodeBlocks[index]}</code>`;
+            });
+
+            // Split into lines for list processing
+            const lines = formattedResponse.split('\n');
+            let result = [];
+            let currentListStack = []; // Stack to track nested lists
+            let inList = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                // Check for list items (both unordered and ordered)
+                const cleanedLine = line.replace(/<code>[\s\S]*?<\/code>/g, '');
+                const listMatch = cleanedLine.match(/^(\s*)([\*\+]|\d+\.)\s(.*)$/);
+
+                if (listMatch) {
+                    const [, indent, marker, content] = listMatch;
+                    const indentLevel = indent.length;
+                    const listType = isNaN(parseInt(marker)) ? 'ul' : 'ol';
+
+                    if (!inList) {
+                        // Starting a new list
+                        inList = true;
+                        currentListStack.push({ type: listType, level: indentLevel });
+                        console.log("List marker:", marker);
+                        if(listType ==="li") 
+                            result.push(`<${listType} value="${marker}">`);
+                        else
+                            result.push(`<${listType}>`);
+                    } else {
+                        // Handle nesting
+                        const currentLevel = currentListStack[currentListStack.length - 1].level;
+
+                        if (indentLevel > currentLevel) {
+                            // Deeper nesting
+                            result.push(`<${listType}>`);
+                            currentListStack.push({ type: listType, level: indentLevel });
+                        } else if (indentLevel < currentLevel) {
+                            // Moving back up the nesting levels
+                            while (currentListStack.length > 0 &&
+                                   currentListStack[currentListStack.length - 1].level > indentLevel) {
+                                result.push(`</${currentListStack.pop().type}></li>`);
+                            }
+                            if (currentListStack[currentListStack.length - 1].type !== listType) {
+                                result.push(`</${currentListStack.pop().type}>`);
+                                result.push(`<${listType}>`);
+                                currentListStack.push({ type: listType, level: indentLevel });
+                            }
+                        } else if (currentListStack[currentListStack.length - 1].type !== listType) {
+                            // Switching list type at same level
+                            result.push(`</${currentListStack.pop().type}>`);
+                            result.push(`<${listType}>`);
+                            currentListStack.push({ type: listType, level: indentLevel });
+                        }
+                    }
+                    result.push(`<li>${content}`);
+
+                    // Look ahead to see if this list item continues
+                    let j = i + 1;
+                    let nextLine = lines[j];
+                    while (j < lines.length && nextLine &&
+                           !nextLine.match(/^(\s*)([\*\+]|\d+\.)\s/) &&
+                           nextLine.trim()) {
+                        result.push(nextLine);
+                        j++;
+                        nextLine = lines[j];
+                    }
+                    i = j - 1;
+                } else {
+                    // Not a list item
+                    if (inList) {
+                        // Close all open lists
+                        while (currentListStack.length > 0) {
+                            result.push(`</${currentListStack.pop().type}>`);
+                        }
+                        inList = false;
+                    } else {
+                      result.push(line);
+                    }
+
+                    // Wrap free text in a <span> to apply styles (if not inside a heading)
+                    //if (!line.match(/^<[a-z]{1,10}>/)) { // If the line is not a heading
+                    //    result.push(`<span>${line}</span><br>`);
+                    //} else {
+                    //    result.push(line);
+                    //}
+                }
+            }
+
+            // Close any remaining open lists
+            while (currentListStack.length > 0) {
+                result.push(`</${currentListStack.pop().type}>`);
+            }
+            //console.log("Quasi finito:", result.join('\n')
+                // Clean up empty lines between list items
+            //    .replace(/>\n<li>/g, '><li>')
+            //    .replace(/(?!<\/(?:pre|code)>)([^>])\n(?![^<]*<\/(?:pre|code)>)/g, '$1<br>\n'));
+            return result.join('\n')
+                // Clean up empty lines between list items
+                .replace(/>\n<li>/g, '><li>')
+                // Add line breaks for non-list content
+                .replace(/(?!<\/(?:pre|code)>)([^>])\n(?![^<]*<\/(?:pre|code)>)/g, '$1<br>\n');
+        }
+
+
+        function convertHtmlToPlainText(html) {
+            // Step 1: Replace HTML tags with plain text equivalents
+            let plainText = html
+                // Convert <br> to new line
+                .replace(/<br>/g, '\n')
+                // Convert <strong> back to **bold**
+                .replace(/<strong>(.*?)<\/strong>:/g, '\n**$1**\n')
+                // Convert <em> back to *italic*
+                .replace(/<em>(.*?)<\/em>/g, '*$1*')
+                // Convert <h1> back to # Title
+                .replace(/<h1>(.*?)<\/h1>/g, '\n# $1\n')
+                // Convert <h2> back to ## Title
+                .replace(/<h2>(.*?)<\/h2>/g, '\n## $1\n')
+                // Convert <h3> back to ### Title
+                .replace(/<h3>(.*?)<\/h3>/g, '\n### $1\n')
+                // Convert <blockquote> back to > Quote
+                .replace(/<blockquote>(.*?)<\/blockquote>/g, '> $1')
+                // Convert <ul> and <li> back to list format
+                .replace(/<ul>(.*?)<\/ul>/g, (match, p1) => {
+                    // Replace each <li> with * Item
+                    return p1.replace(/<li>(.*?)<\/li>/g, '* $1\n');
+                })
+                // Remove any remaining HTML tags
+                .replace(/<\/?[^>]+(>|$)/g, '');
+
+            // Step 2: Normalize line breaks
+            // Replace multiple newlines with a single newline
+            plainText = plainText.replace(/\n+/g, '\n').trim()+"\n\n";
+
+            return plainText;
+        }
+
+        function isUserAtBottom(element) {
+            const BOTTOM_MARGIN = 100;
+            const { scrollTop, scrollHeight, clientHeight } = element;
+            return scrollHeight - (scrollTop + clientHeight) <= BOTTOM_MARGIN;
+        }
+
+        async function streamAssistantResponse() {
+            // Generate a unique identifier for this specific response stream
+            const streamId = `stream-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            
+            let requestBody = [];
+            if(contextToggleCheckbox.checked && currentVideoTimestamps.length > 0)
+                requestBody = buildContextMessage();
+            else
+                requestBody = buildMessageList();
+            
+            console.log("Che mando all'assistente?", requestBody);
+            
+            // Create a dedicated container for this specific stream
+            const messageContainer = addMessage("<span class='fake-message-cursor'></span>", false);
+            // Add a data attribute to track this specific stream
+            messageContainer.dataset.streamId = streamId;
+            
+            const chatApi = serverApi+"/ollama/chat";
+            
+            // Ensure we have a global storage for background streams
+            if (!window.backgroundStreams) {
+                window.backgroundStreams = {};
+            }
+
+            // Prepare stream data
+            const streamData = {
+                fullMessage: "",
+                isComplete: false,
+                error: null,
+                chatId: currentChat.id
+            };
+
+            try {
+                const response = await fetch(chatApi, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder("utf-8");
+
+                    // Store the stream data globally
+                    window.backgroundStreams[streamId] = streamData;
+
+                    let done, value;
+                    while (!done) {
+                        ({ value, done } = await reader.read());
+                        
+                        if (done) {
+                            break;
+                        }
+
+                        const chunk = decoder.decode(value, {stream: true})
+                        streamData.fullMessage = streamData.fullMessage.replace(/(<span class='fake-message-cursor'><\/span>)$/, '')
+                        streamData.fullMessage += chunk + "<span class='fake-message-cursor'></span>";
+
+                        // Update the message container if it's in the current chat
+                        updateMessageIfInCurrentChat(streamId, streamData);
+                    }
+
+                    // Mark stream as complete
+                    streamData.isComplete = true;
+
+                    // Final update
+                    updateMessageIfInCurrentChat(streamId, streamData);
+                }
+            } catch (error) {
+                // Store error information
+                streamData.error = error;
+                console.error("Error while trying to communicate with the ai assistant:", error)
+            }
+        }
+
+        function updateMessageIfInCurrentChat(streamId, streamData) {            
+            //console.log("Stream data:", streamData);
+            // If container exists and is in the current chat
+            //console.log("Current chat id:" + currentChat.id, "stream chat id: " + streamData.chatId);
+            if (streamData.chatId === currentChat.id) {
+                //console.log("Stream is related to the current chat");
+                // Recreate message container if it doesn't exist
+                let messageContainer = document.querySelector(`[data-stream-id="${streamId}"]`);
+
+                if (!messageContainer) {
+                    messageContainer = addMessage("<span class='fake-message-cursor'></span>", false);
+                    messageContainer.dataset.streamId = streamId;
+                }
+                messageContainer.innerHTML = formatAIMessage(streamData.fullMessage);
+                
+                if (isUserAtBottom(chatMessages))
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // If stream is complete, finalize the message
+                if (streamData.isComplete) {
+                    console.log("Streaming is finished, finalizing");
+                    Prism.highlightAll();
+                    messageContainer.innerHTML = messageContainer.innerHTML.replace(/(<span class="fake-message-cursor"><\/span>)/, '');
+                    addPinsToScrollbar();
+                    saveChatMessages(currentChat);
+                    delete window.backgroundStreams[streamId];
+                }
+            }
+        }
+
+        function cleanupOldBackgroundStreams() {
+            if (!window.backgroundStreams) return;
+
+            const now = Date.now();
+            const MAX_STREAM_AGE = 1000 * 60 * 60; // 1 hour
+
+            Object.entries(window.backgroundStreams).forEach(([streamId, streamData]) => {
+                // Remove streams that are very old and complete
+                if (streamData.isComplete && (now - parseInt(streamId.split('-')[1]) > MAX_STREAM_AGE)) {
+                    delete window.backgroundStreams[streamId];
+                }
+            });
+        }
+
+        setInterval(cleanupOldBackgroundStreams, 1000 * 60 * 5); 
+
+        function resumeBackgroundStreams() {
+            if (!window.backgroundStreams) return;
+            
+            Object.entries(window.backgroundStreams).forEach(([streamId, streamData]) => {
+                console.log("Background stream reco:" + window.backgroundStreams);
+                // Reattach message containers for ongoing streams
+                // Update message in current chat
+                updateMessageIfInCurrentChat(streamId, streamData);
+            });
+        }
+
+        function createNewStream() {
+            if (!window.backgroundStreams) {
+                window.backgroundStreams = {};
+            }
+            const streamId = `stream-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+            // Prepare stream data
+            const streamData = {
+                streamId: streamId,
+                fullMessage: "",
+                isComplete: false,
+                error: null,
+                chatId: currentChat.id
+            };
+
+            window.backgroundStreams[streamId] = streamData;
+            return streamData;
+        }
+
+        async function summarizeVideo() {
+            console.log("Starting with video summarization");
+            const messageContainer = addMessage("Creating Index...<span class='fake-message-cursor'></span>", false);
+            const chatApi = serverApi+"/ollama/chat";
+            let videoTranscription = "";
+            const videoTimestamps = groupTimestamps(currentVideoTimestamps, 60);
+            videoTimestamps.forEach((paragraph) => {
+                videoTranscription += "\n" + "TIMESTAMP: **" + paragraph.time + "**\nTEXT:" + paragraph.text;
+            });
+            console.log("Video transc", videoTranscription);
+            const summTemplate1 =
+`You're an AI expert in analyzing video transcripts of natural informal conversations. As the first step, analyze the given TIMESTAMP - CONTENT transcription pairs.
+The index has to be written using the same language as the transcription, exclusively.
+
+ TRANSCRIPTION:
+ ${videoTranscription}
+
+ Use ALL of the transcription data to create a COMPLETE and COMPREHENSIVE HIERARCHICAL INDEX with:
+    1 Main sections based on **all** major topics.
+    2 Subsections for subtopics
+    3 Bullet points for specific details
+
+ HIERARCHICAL INDEX:
+
+ `
+            const requestBody = [
+              {
+                "role": "user",
+                "content" : summTemplate1
+               }
+            ]
+            let fullMessage = "";
+
+            // Step 1, indice gerarchico con timestamps
+            try {
+                const response = await fetch(chatApi, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder("utf-8");
+
+                    let done, value;
+                    while (!done) {
+                        ({ value, done } = await reader.read());
+                        if (done) {
+                            break;
+                        }
+                        const chunk = decoder.decode(value, {stream: true})
+                        fullMessage += chunk;
+                    }
+                    console.log("Full response for summarization, step 1:", fullMessage);
+                    //await saveChatMessages(currentChat);
+                }
+            } catch (error) {
+                console.error("Error while trying to communicate with the ai assistant:", error)
+            }
+            const summTemplate2 =`
+TRANSCRIPTION:
+'''
+${videoTranscription}
+'''
+
+ASSISTANT'S MAIN PURPOSE:
+You're an expert on analyzing video transcription and creating detailed summaries with all key information about the main topic of the discussion, starting from a well defined hierarchical index.
+You write using exclusively the transcription and index's language
+The provided data is:
+  - A TRANSCRIPTION in the form of TIMESTAMP: {time} TEXT: {text}.
+  - A HIERARCHICAL INDEX in the form of a nested list with **main sections**, **subsections** and **bullet points**.
+
+Your focus is on these points:
+  - Given the full transcription and a hierarchical index, write a summary that encompasses all the topics described in the index, using only information contained in the transcription.
+  - Each main section of the hierarchical index is preceded by a short introduction of one (1) paragraph.
+  - Each subsection is made up of AT LEAST two (2) paragraphs for each bullet point.
+
+HIERARCHICAL INDEX:
+'''
+${fullMessage}
+'''
+
+DETAILED SUMMARY BASED ON THE HIERARCHICAL INDEX'S EXACT STRUCTURE:
+`
+            const requestBody2 = [
+              {
+                "role": "user",
+                "content" : summTemplate2
+               }
+            ]
+            let fullMessage2 = "";
+            console.log("Body 2", requestBody2)
+            // Step 1, indice gerarchico con timestamps
+            try {
+                const response = await fetch(chatApi, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody2)
+                });
+
+                if (response.ok) {
+                    const streamData = createNewStream();
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder("utf-8");
+
+                    let done, value;
+                    while (!done) {
+                        ({ value, done } = await reader.read());
+                        if (done) {
+                            break;
+                        }
+
+                        const chunk = decoder.decode(value, {stream: true})
+                        streamData.fullMessage = streamData.fullMessage.replace(/(<span class='fake-message-cursor'><\/span>)$/, '')
+                        streamData.fullMessage += chunk + "<span class='fake-message-cursor'></span>";
+                        updateMessageIfInCurrentChat(streamData.streamId, streamData);
+                    }
+
+                    streamData.isComplete = true;
+
+                    updateMessageIfInCurrentChat(streamData.streamId, streamData);
+                }
+            } catch (error) {
+                console.error("Error while trying to communicate with the ai assistant:", error)
+            }
+        }
+
+
+        async function generateDocumentation() {
+            const chatApi = serverApi+"/ollama/chat";
+            let videoTranscription = "";
+            const videoTimestamps = groupTimestamps(currentVideoTimestamps, 60);
+            videoTimestamps.forEach((paragraph) => {
+                videoTranscription += "\n" + "TIMESTAMP: **" + paragraph.time + "**\nTEXT:" + paragraph.text;
+            });
+            const messageContainer = addMessage("Generating Documentation...<span class='fake-message-cursor'></span>", false);
+            const docTemplate =`
+TRANSCRIPTION:
+'''
+${videoTranscription}
+'''
+
+ASSISTANT'S MAIN PURPOSE:
+You're a technical writer. Extract and organize all technical information from the transcription into clear documentation.
+Write using **exclusively** the language of the transcription, that is ${langAbbrDict[currentTranscriptionLanguage]}.
+
+INPUT:
+- Video transcription with timestamps
+
+OUTPUT SECTIONS [IN ${langAbbrDict[currentTranscriptionLanguage].toUpperCase()}]:
+
+## 1. Overview
+   - What tools/technologies/procedures are discussed
+   - Their main purpose
+   - Target users/use cases
+
+## 2. Technical Details
+   For each tool/technology mentioned:
+   - Name and version (if mentioned)
+   - Discussed Key features
+   - Requirements
+   - Discussed Use Cases
+   - Discussed Limitations
+
+## 3. Procedures
+   For each procedure discussed:
+   - Step-by-step instructions
+   - Important warnings or notes
+   - Common issues and solutions
+
+## 4. Best Practices
+   - Recommended approaches
+   - Things to avoid
+   - Performance considerations
+
+## 5. References
+   - Any external tools/systems mentioned
+   - Related topics for further learning
+
+FORMAT:
+Use clear headings and bullet points.
+The five main sections should be treated as main headers and preceded by "##"
+Focus on accuracy over completeness - only document clearly explained details.
+
+DOCUMENTATION:
+'''
+`
+            const requestBody = [
+              {
+                "role": "user",
+                "content" : docTemplate
+               }
+            ]
+            let fullMessage = "";
+
+            try {
+                const response = await fetch(chatApi, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const streamData = createNewStream();
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder("utf-8");
+
+                    let done, value;
+                    while (!done) {
+                        ({ value, done } = await reader.read());
+                        if (done) {
+                            break;
+                        }
+                        const chunk = decoder.decode(value, {stream: true})
+                        streamData.fullMessage = streamData.fullMessage.replace(/(<span class='fake-message-cursor'><\/span>)$/, '')
+                        streamData.fullMessage += chunk + "<span class='fake-message-cursor'></span>";
+                        updateMessageIfInCurrentChat(streamData.streamId, streamData);
+                    }
+                    streamData.isComplete = true;
+
+                    updateMessageIfInCurrentChat(streamData.streamId, streamData);
+                }
+            } catch (error) {
+                console.error("Error while trying to communicate with the ai assistant:", error)
+            }
+        }
+
+
+        async function generateFAQ() {
+            const chatApi = serverApi+"/ollama/chat";
+            let videoTranscription = "";
+            const videoTimestamps = groupTimestamps(currentVideoTimestamps, 15);
+            videoTimestamps.forEach((paragraph) => {
+                videoTranscription += "\n\n\n" + "TIMESTAMP: **" + paragraph.time + "**\nTEXT:" + paragraph.text;
+            });
+            const messageContainer = addMessage("Generating QA Document...<span class='fake-message-cursor'></span>", false);
+            const docTemplate =`
+TRANSCRIPTION:
+'''
+${videoTranscription}
+'''
+
+ASSISTANT'S MAIN PURPOSE:
+You're a technical documentation expert. Create a Q&A document from the transcription, capturing key questions and their answers.
+
+INPUT:
+- Video transcription with timestamps, in ${langAbbrDict[currentTranscriptionLanguage]}
+
+OUTPUT STRUCTURE [IN ${langAbbrDict[currentTranscriptionLanguage].toUpperCase()}]:
+
+1. Key Questions Summary
+   List 10 to 15 main questions on the discussed topics
+   Example:
+   • "How does X impact performance?"
+   • "When should we use Y instead of Z?"
+
+2. Detailed Q&A Sections
+   For each key question in the **Key Questions Summary**:
+
+   Q: [Write the question]
+
+   A: [Provide clear answer using information from transcript]
+   - Main points
+   - Examples given
+   - Important considerations
+
+   Follow-up:
+   - Related questions raised
+   - Unresolved points
+   - Planned future discussions
+
+3. Quick Reference
+   - Frequently mentioned issues
+   - Common problems and solutions
+   - Key takeaways
+
+FORMAT:
+- Use exact quotes when possible
+- Note if any questions were left unanswered
+
+QA DOCUMENT:
+'''
+`
+
+            const requestBody = [
+              {
+                "role": "user",
+                "content" : docTemplate
+               }
+            ]
+            let fullMessage = "";
+            // Step 1, indice gerarchico con timestamps
+            try {
+                const response = await fetch(chatApi, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const streamData = createNewStream();
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder("utf-8");
+
+                    let done, value;
+                    while (!done) {
+                        ({ value, done } = await reader.read());
+                        if (done) {
+                            break;
+                        }
+                        const chunk = decoder.decode(value, {stream: true})
+                        streamData.fullMessage = streamData.fullMessage.replace(/(<span class='fake-message-cursor'><\/span>)$/, '')
+                        streamData.fullMessage += chunk + "<span class='fake-message-cursor'></span>";
+                        updateMessageIfInCurrentChat(streamData.streamId, streamData);
+                    }
+                    streamData.isComplete = true;
+
+                    updateMessageIfInCurrentChat(streamData.streamId, streamData);
+                }
+            } catch (error) {
+                console.error("Error while trying to communicate with the ai assistant:", error)
+            }
+        }
+
+        function buildMessageList() {
+            let messageObjList = [];
+            const chatMessagesList = chatMessages.querySelectorAll('.message');
+            chatMessagesList.forEach((div) => {
+                const messageObj = {
+                    "role": div.className.includes("message user") ? "user" : "assistant",
+                    "content": div.innerHTML
+                }
+                messageObjList.push(messageObj)
+            })
+            return messageObjList;
+        }
+
+        async function saveChatMessages(chat) {
+            //console.log("Chiamato salvataggio chat con contenuto!", chat);
+            const messageObjList = buildMessageList();
+            const messageObjListSerial = JSON.stringify(messageObjList);
+            currentChat.chat_msg = messageObjListSerial;
+            updateChatList(currentChat)
+
+            const chatUpdateRequest = JSON.stringify({
+              "title": chat.title,
+              "chat_msg": messageObjListSerial
+            })
+
+            try {
+                const response = await fetch(serverApi + "/chats/" + chat.id, {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: chatUpdateRequest
+                });
+
+                if (response.ok) {
+                    console.log("Chat messages save success");
+                } else {
+                    console.log("Chat messages save failed");
+                }
+            } catch (error) {
+                console.log("Error while sending chat messages save request to the server:", error);
+            }
+        }
+
+        function populateChatMessages() {
+            const messages = JSON.parse(currentChat.chat_msg)
+            chatMessages.innerText = "";
+
+            if (messages === null)
+              return;
+
+            messages.forEach((msg) => {
+                addMessage(msg.content, msg.role === "user", false, false);
+            })
+            Prism.highlightAll();
+            console.log("h no arr", calculateScrollArea(chatMessages));
+            console.log(chatMessages.clientHeight);
+
+            console.log("Comincio coi PINS");
+
+            addPinsToScrollbar();
+
+        }
+
+        function addPinsToScrollbar() {
+            scrollPinsContainer.innerHTML = "";
+            if (chatMessages.scrollHeight < 2000 || !messagePinsToggleCheckbox.checked) return;
+            
+            const messageDivs = document.getElementsByClassName("message");
+            let counter = 1;
+            
+            for (var i = 0; i < messageDivs.length; i++) {
+                const messageDiv = messageDivs[i];
+                if (messageDiv.classList.contains("user")) continue;
+                
+                const messagePin = document.createElement("button");
+                messagePin.textContent = counter++;
+                
+                messagePin.addEventListener("click", () => {
+                    messageDiv.scrollIntoView({behavior: "smooth", block: "start"});
+                });
+                
+                // Calculate the absolute scroll position of the message
+                const messageAbsoluteTop = messageDiv.offsetTop;
+                const scrollbarHeight = chatMessages.getBoundingClientRect().height;
+                const totalScrollHeight = chatMessages.scrollHeight;
+                
+                // Calculate relative position based on the message's absolute position
+                const relativePosition = 45 + ((messageAbsoluteTop / totalScrollHeight) * scrollbarHeight);
+                
+                messagePin.style.top = `${relativePosition}px`;
+                scrollPinsContainer.appendChild(messagePin);
+            }
+        }
+
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value.trim();
+            console.log("Messaggio di input", message);
+            if (message) {
+                addMessage(message, true, true, true);
+                messageInput.value = '';
+                // Resetta temporaneamente l'altezza a "auto" per calcolare la nuova altezza
+                messageInput.style.height = "36px";
+
+                // Imposta l'altezza in base al contenuto, con un massimo di 600px
+                messageInput.style.height = Math.min(messageInput.scrollHeight, 350) + "px";
+                }
+        });
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendButton.click();
+            }
+        });
+
+        // Video upload handling
+        uploadArea.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'video/*,video/x-matroska';
+            input.click();
+
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const title = file.name;
+                    const videoUrl = URL.createObjectURL(file);
+                    uploadVideo(file, title, currentChat.id);
+                    videoPlayer.src = videoUrl;
+                    videoPlayer.style.display = 'block';
+                    uploadArea.style.display = 'none';
+                }
+            });
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#f0f0f0';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = 'none';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('video/')) {
+                const title = file.name;
+                uploadVideo(file, title, currentChat.id);
+                const videoUrl = URL.createObjectURL(file);
+                videoPlayer.src = videoUrl;
+                videoPlayer.style.display = 'block';
+                uploadArea.style.display = 'none';
+            }
+            uploadArea.style.background = 'none';
+        });
+
+        async function getUserChatsInfo(userId) {
+          try {
+            console.log("Recupero info chat");
+            // Create the new div element
+            const chatLoader = document.createElement("div");
+            // Set its class to "chat-loader"
+            chatLoader.className = "chat-loader";
+            // Add to chat container
+            chatMessages.appendChild(chatLoader);
+            console.log(serverApi + "/chats/info?userId=" + userId);
+            response = await fetch(serverApi + "/chats/info?userId=" + userId, {
+              method: "GET"
+            });
+            if (response.ok) {
+              console.log(response);
+              userChats = await response.json();
+              console.log("User chats info retrieved successfully:", userChats);
+              if (userChats.length === 0) {
+                console.log("No user chats are available, creating the first one..");
+                await createNewChat(userId);
+              }
+              populateChatList();
+              await changeActiveChat(userChats[0]);
+            } else {
+              console.error("User chats retrieval failed:", response.statusText);
+            }
+          } catch (error) {
+            console.error("Error while trying to recover user chats:", error)
+          }
+        }
+
+        async function createNewChat(userId) {
+          try {
+            let newChatData = {
+                "user": {
+                    "id": userId
+                },
+                "title": "Chat With Assistant",
+                "chat_msg": "[]"
+            };
+
+            const response = await fetch(serverApi + "/chats", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(newChatData)
+            });
+
+            if (response.ok) {
+              const newChat = await response.json();
+              userChats.push(newChat);
+              populateChatList();
+              await changeActiveChat(newChat);
+            } else {
+              console.error("Chat creation failed:", response.statusText);
+            }
+          } catch(error) {
+            console.error("Error while trying to create a new chat:", error);
+          }
+        }
+
+        const removeChat = (array, chatToRemove) => {
+            return array.filter(item => item.id !== chatToRemove.id);
+        };
+
+        function showDeleteConfirmation() {
+            const confirmDialog = document.createElement('div');
+            confirmDialog.className = 'confirm-dialog';
+            confirmDialog.innerHTML = `
+                <div class="confirm-dialog-content">
+                    <p>Are you sure you want to delete this chat?</p>
+                    <div class="confirm-dialog-buttons">
+                        <button class="confirm-button confirm-delete">Delete</button>
+                        <button class="confirm-button cancel">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(confirmDialog);
+
+            // Add event listeners for the buttons
+            const deleteButton = confirmDialog.querySelector('.confirm-delete');
+            const cancelButton = confirmDialog.querySelector('.cancel');
+
+            deleteButton.addEventListener('click', async () => {
+                await deleteChat(currentChat.id);
+                confirmDialog.remove();
+            });
+
+            cancelButton.addEventListener('click', () => {
+                confirmDialog.remove();
+            });
+        }
+
+        function showDeleteAllConfirmation() {
+            const confirmDialog = document.createElement('div');
+            confirmDialog.className = 'confirm-dialog';
+            confirmDialog.innerHTML = `
+                <div class="confirm-dialog-content">
+                    <p>Are you sure you want to delete all chats? This is <b>irreversible.</b></p>
+                    <div class="confirm-dialog-buttons">
+                        <button class="confirm-button confirm-delete">Delete</button>
+                        <button class="confirm-button cancel">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(confirmDialog);
+
+            // Add event listeners for the buttons
+            const deleteButton = confirmDialog.querySelector('.confirm-delete');
+            const cancelButton = confirmDialog.querySelector('.cancel');
+
+            deleteButton.addEventListener('click', async () => {
+                await deleteAllChats();
+                confirmDialog.remove();
+            });
+
+            cancelButton.addEventListener('click', () => {
+                confirmDialog.remove();
+            });
+        }
+
+        async function deleteChat(chatId) {
+          try {
+              const response = await fetch(serverApi + "/chats/" + chatId, {
+                  method: "DELETE"
+              });
+              if (response.ok) {
+                  console.log("Chat deleted successfully");
+                  userChats = removeChat(userChats, {"id": chatId});
+                  populateChatList();
+                  if(chatId === currentChat.id)
+                    currentChat = null;
+                  if(userChats.length > 0) {
+                      await changeActiveChat(userChats[0])
+                  } else {
+                      restoreDefaultChatContext();
+                  }
+              } else {
+                  console.log("User chat deletion failed:", response.statusText);
+              }
+
+          } catch(error) {
+            console.error("Error while trying to delete the chat:", error)
+          }
+        }
+
+        async function deleteAllChats() {
+            try {
+                while(userChats.length > 0) {
+                  const response = await fetch(serverApi + "/chats/" + currentChat.id, {
+                    method: "DELETE"
+                  });
+                  if (response.ok) {
+                      console.log("Chat deleted successfully");
+                      userChats = removeChat(userChats, currentChat);
+                      populateChatList();
+                        currentChat = null;
+                      if(userChats.length > 0) {
+                          await changeActiveChat(userChats[0])
+                      } else {
+                          restoreDefaultChatContext();
+                      }
+                  } else {
+                      console.log("User chat deletion failed:", response.statusText);
+                  }
+                }
+            } catch(error) {
+              console.error("Error while trying to delete the chat:", error)
+            }
+        }
+
+        // Populate timestamps
+        function populateTimestamps(timestamps) {
+            timestamps = groupTimestamps(timestamps, groupDuration);
+            timestampsContainer.innerText = ""
+            timestamps.forEach(({ time, text }) => {
+                const timestampDiv = document.createElement('div');
+                timestampDiv.className = 'timestamp-item';
+                timestampDiv.innerHTML = `
+                    <span class="timestamp-time">${time}</span>
+                    <p>${text}</p>
+                `;
+                timestampDiv.addEventListener('click', () => {
+                    // Convert timestamp to seconds (mock implementation)
+                    const [minutes, seconds] = time.split(':').map(Number);
+                    videoPlayer.currentTime = minutes * 60 + seconds;
+                });
+                timestampsContainer.appendChild(timestampDiv);
+            });
+        }
+
+        let isResizing = false;
+
+        resizer.addEventListener("mousedown", (e) => {
+            isResizing = true;
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", () => {
+                isResizing = false;
+                document.removeEventListener("mousemove", handleMouseMove);
+            });
+        });
+
+        function handleMouseMove(e) {
+            if (!isResizing) return;
+
+            // Calculate new width for the right panel
+            const newRightPanelWidth = window.innerWidth - e.clientX;
+            const drawerWidth = document.querySelector('.drawer').offsetWidth;
+            const minWidth = 200;
+            // Calculate max width based on window width minus drawer and minimum main content width
+            const maxWidth = window.innerWidth - drawerWidth - 400; // 400px minimum for main content
+
+            // Only update width if within min and max range
+            if (newRightPanelWidth >= minWidth && newRightPanelWidth <= maxWidth) {
+                rightPanel.style.width = `${newRightPanelWidth}px`;
+            }
+        }
+
+        function updateMainContentWidth(rightPanelWidth = rightPanel.offsetWidth) {
+            const drawerWidth = isDrawerClosed ? 60 : 250;
+            const newMainWidth = window.innerWidth - drawerWidth - rightPanelWidth;
+            mainContent.style.width = `${newMainWidth}px`;
+            mainContent.style.flex = '0 0 auto';
+        }
+
+        function groupTimestamps(timestamps, groupDuration) {
+            if(timestamps.length === 0)
+                return [];
+            // Converti i timestamp da stringa a numero (seconds interval)
+            const timestampsWithSeconds = timestamps.map(t => {
+              const [minutes, seconds] = t.time.split(':');
+              return {
+                time: parseInt(minutes) * 60 + parseInt(seconds),
+                text: t.text
+              };
+            });
+
+            // Ordina i timestamp in base al valore di "time"
+            timestampsWithSeconds.sort((a, b) => a.time - b.time);
+
+            const groupedTimestamps = [];
+            let currentGroup = {
+              startTime: timestampsWithSeconds[0].time,
+              endTime: timestampsWithSeconds[0].time + groupDuration,
+              text: timestampsWithSeconds[0].text
+            };
+
+            for (let i = 1; i < timestampsWithSeconds.length; i++) {
+              const timestamp = timestampsWithSeconds[i];
+              if (timestamp.time <= currentGroup.endTime) {
+                currentGroup.text += ` ${timestamp.text}`;
+              } else {
+                groupedTimestamps.push({
+                  time: `${Math.floor(currentGroup.startTime / 60)}:${String(currentGroup.startTime % 60).padStart(2, '0')}`,
+                  text: currentGroup.text
+                });
+                currentGroup = {
+                  startTime: timestamp.time,
+                  endTime: timestamp.time + groupDuration,
+                  text: timestamp.text
+                };
+              }
+            }
+
+            groupedTimestamps.push({
+              time: `${Math.floor(currentGroup.startTime / 60)}:${String(currentGroup.startTime % 60).padStart(2, '0')}`,
+              text: currentGroup.text
+            });
+            return groupedTimestamps;
+        }
+
+        function handleExport(format) {
+            // Example implementation:
+            const content = getEntireChat();
+            switch(format) {
+                case 'txt':
+                  exportAsTXT(content);
+                  break;
+                case 'docx':
+                  exportAsDOCX(content);
+                  break;
+                case 'pdf':
+                  exportAsPDF(content);
+                  break;
+            }
+        }
+
+        async function handleVideoExport() {
+            console.log('Exporting video with subtitles');
+
+            try {
+                const response = await fetch(serverApi + '/videos/' + currentVideoId + "/export", {
+                    method: 'GET',
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob(); // Get the response as a blob
+                    const url = window.URL.createObjectURL(blob); // Create a URL for the blob
+                    const a = document.createElement('a'); // Create a link element
+                    a.href = url; // Set the href to the blob URL
+                    a.download = 'subbed_video.zip'; // Set the download attribute
+                    document.body.appendChild(a); // Append to the body
+                    a.click(); // Programmatically click the link to trigger the download
+                    a.remove(); // Remove the link from the document
+                    window.URL.revokeObjectURL(url); // Clean up the URL object
+                } else {
+                    throw new Error('Failed to export subbed video. Status: ' + response.status);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred: ' + error.message);
+            }
+        }
+
+        function getEntireChat() {
+            // Implement getting entire chat content
+            return buildMessageList();
+        }
+
+        function exportAsTXT(content) {
+            console.log("Exporting as TXT");
+            let txtContent = "";
+            if(content.length === 1) {
+                txtContent = convertHtmlToPlainText(content[0].content);
+            } else {
+                content.forEach((message) => {
+                txtContent += message.role.toUpperCase() + ":\n" + convertHtmlToPlainText(message.content) + "\n";
+                })
+            }
+            const blob = new Blob([txtContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentChat.title.replace(" ", "_")+'.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function exportAsPDF(content) {
+            let htmlContent = ""
+            if (content.length === 1) {
+                htmlContent = content[0].content;
+            } else {
+                content.forEach((message) => {
+                  htmlContent+= "<h3>" + message.role + "</h3>" + "<div>" + message.content + "</div>";
+                });
+            }
+            const requestBody = {
+                html: htmlContent
+            };
+            console.log("HTML da convertire in PDF", htmlContent);
+            try {
+                const response = await fetch(serverApi + '/chats/generate/pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob(); // Get the response as a blob
+                    const url = window.URL.createObjectURL(blob); // Create a URL for the blob
+                    const a = document.createElement('a'); // Create a link element
+                    a.href = url; // Set the href to the blob URL
+                    a.download = currentChat.title.replace(" ", "_")+'.pdf'; // Set the download attribute
+                    document.body.appendChild(a); // Append to the body
+                    a.click(); // Programmatically click the link to trigger the download
+                    a.remove(); // Remove the link from the document
+                    window.URL.revokeObjectURL(url); // Clean up the URL object
+                } else {
+                    throw new Error('Failed to convert HTML to PDF. Status: ' + response.status);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred: ' + error.message);
+            }
+        }
+
+        async function exportAsDOCX(content) {
+            let htmlContent = ""
+            if (content.length === 1) {
+                htmlContent = "<div>" + content[0].content + "</div>";
+            } else {
+                content.forEach((message) => {
+                  htmlContent+= "<h3>" + message.role.toUpperCase() + "</h3>" + "<div>" + message.content + "</div><br>";
+                });
+            }
+            const requestBody = {
+                html: htmlContent
+            };
+
+            try {
+                const response = await fetch(serverApi + '/chats/generate/word', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob(); // Get the response as a blob
+                    const url = window.URL.createObjectURL(blob); // Create a URL for the blob
+                    const a = document.createElement('a'); // Create a link element
+                    a.href = url; // Set the href to the blob URL
+                    a.download = currentChat.title.replace(" ", "_")+'.docx'; // Set the download attribute
+                    document.body.appendChild(a); // Append to the body
+                    a.click(); // Programmatically click the link to trigger the download
+                    a.remove(); // Remove the link from the document
+                    window.URL.revokeObjectURL(url); // Clean up the URL object
+                } else {
+                    throw new Error('Failed to convert HTML to Word. Status: ' + response.status);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred: ' + error.message);
+            }
+        }
+
+        async function addSubtitles(videoId, subtitlesLanguage) {
+            try {
+                // Fetch the VTT content from the API
+                const response = await fetch(serverApi + `/transcriptions/vtt/video/${videoId}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch subtitles: ${response.statusText}`);
+                }
+                const vttContent = await response.text();
+
+                // Create a Blob from the VTT content and generate a URL
+                const blob = new Blob([vttContent], { type: "text/vtt" });
+                const vttUrl = URL.createObjectURL(blob);
+
+                // Create a <track> element
+                const trackElement = document.createElement("track");
+                trackElement.kind = "subtitles";
+                trackElement.label = langAbbrDict[subtitlesLanguage];
+                trackElement.srclang = subtitlesLanguage;
+                trackElement.src = vttUrl;
+                trackElement.default = true;
+
+                // Append the <track> element to the video player
+                removeSubtitles();
+                videoPlayer.appendChild(trackElement);
+
+                console.log("Subtitles added successfully!");
+            } catch (error) {
+                console.error("Error adding subtitles:", error);
+            }
+        }
+
+        function removeSubtitles() {
+            const tracks = videoPlayer.querySelectorAll('track');
+            tracks.forEach(track => track.remove());
+        }
+
+        getUserChatsInfo(userId);
+
+        // Add double-click to reset to default width
+        //resizer.addEventListener('dblclick', function() {
+        //    rightPanel.style.width = '300px';
+        //});
+    </script>
+</body>
+
+</html>
