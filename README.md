@@ -17,11 +17,11 @@ Going beyond transcription, **VideoWise** integrates with [Ollama](https://githu
 6. [Limitations](#limitations)
 7. [TODOs](#todos)
 ## <a name="key-features"></a>Key Features
-- **Seamless Video Uploads**: Quickly upload your videos to get started.
-- **Accurate Transcription and Translation**: WhisperX ensures high-quality transcriptions in multiple languages `(en, fr, de, es, it, ja, zh, nl, uk, pt)`.
-- **Timestamped Navigation**: Automatically associate transcribed sentences with their relative timestamps, enabling effortless navigation through video content.
-- **AI-Powered Interactions**: Communicate with an AI using Ollama to ask questions about the transcribed video, generate summaries, or create quizzes.
-- **Flexible Export Options**: Export AI-powered chats in various formats or download the transcribed video with subtitles applied.
+- 📤 **Seamless Video Uploads**: Quickly upload your videos to get started.
+- 🎙️ **Accurate Transcription and Translation**: WhisperX ensures high-quality transcriptions in multiple languages `(en, fr, de, es, it, ja, zh, nl, uk, pt)`.
+- ⏱️ **Timestamped Navigation**: Automatically associate transcribed sentences with their relative timestamps, enabling effortless navigation through video content.
+- 🤖 **AI-Powered Interactions**: Communicate with an AI using Ollama to ask questions about the transcribed video, generate summaries, or create quizzes.
+- 📦 **Flexible Export Options**: Export AI-powered chats in various formats or download the transcribed video with subtitles applied.
 
 ![Centered Logo](./videowise-ui-client/videowise_ui.png)
 ## <a name="setup"></a>Setup
@@ -48,11 +48,11 @@ At the end of the process, you'll be able to access the application on `http://l
 The modular setup allows more flexibility and is ideal for separating services onto different machines (e.g., running the WhisperX transcription service on a GPU-equipped system). This setup requires manual configuration of each service.
 <br>
 - **Application Modules**
-  -  **Main Server**: Acts as a central hub for all communication between modules.
-  -  **Web UI Client**: The front-end interface for the application.
-  -  **FileSystem Server**: Manages uploaded/generated files and handles video streaming.
-  -  **Python Server**: Interfaces with WhisperX for transcription and performs file conversions (HTML to PDF/DOCX).
-  -  **DataBase Service**: PostgreSQL instance storing non-file data (e.g., chats, users).
+  -  🌐 **Main Server**: Acts as a central hub for all communication between modules.
+  -  🖥️ **Web UI Client**: The front-end interface for the application.
+  -  📁 **FileSystem Server**: Manages uploaded/generated files and handles video streaming.
+  -  🐍 **Python Server**: Interfaces with WhisperX for transcription and performs file conversions (HTML to PDF/DOCX).
+  -  🗄️ **DataBase Service**: PostgreSQL instance storing non-file data (e.g., chats, users).
 - **Steps** 
   1. Install **Docker** on every machine where a service will run and **Ollama** on the one that will provide the AI chat functionality. 
   2. Build and run the **Database Service** with:
@@ -100,11 +100,11 @@ The modular setup allows more flexibility and is ideal for separating services o
      docker run -d --name videowise-ui-client -p 80:80 videowise-ui-client
      ```
 ## <a name="how-to-use"></a>How to Use
-1. **Create a new Chat:** Begin by clicking on the _New Chat_ button.
-1. **Upload a Video:** Drag and drop your video file onto the right side of the interface.  
-2. **Wait for Transcription:** Allow the system to process and transcribe the video content.  
-3. **Interact with AI:** Check the "Inject Video Context" option to provide the AI with video context, then ask questions, generate summaries, or even create quizzes. 
-4. **Export Options:** Export the transcribed video with embedded subtitles or save the AI chat content in PDF, Word, or TXT format. 
+- 🆕 **Create a new Chat:** Begin by clicking on the _New Chat_ button.
+- 🎥 **Upload a Video:** Drag and drop your video file onto the right side of the interface.  
+- ⏳ **Wait for Transcription:** Allow the system to process and transcribe the video content.  
+- 🤖 **Interact with AI:** Check the "Inject Video Context" option to provide the AI with video context, then ask questions, generate summaries, or even create quizzes. 
+- 💾 **Export Options:** Export the transcribed video with embedded subtitles or save the AI chat content in PDF, Word, or TXT format. 
 ## <a name="technical-details"></a>Technical Details
 - By default, the Python Server employs the `large-v2` model for video transcription. You can change this setting in the following file:
   ```python
