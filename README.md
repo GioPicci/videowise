@@ -1,12 +1,13 @@
 ![Centered Logo](./videowise-ui-client/VideoWiseLogoNewFont.png)
 # VideoWise
-VideoWise is an application that allows users to upload videos, which are then transcribed using [WhisperX](https://github.com/m-bain/whisperX) (based on the [Whisper](https://github.com/openai/whisper) OpenAI model) in the user's chosen language. The transcription and timestamps enable users to quickly navigate through the uploaded video, as each transcribed sentence is associated with its relative timestamp.
-Additionally, **VideoWise** integrates with [Ollama](https://github.com/ollama/ollama) to allow users to communicate with an AI model of their choosing and ask questions about the transcribed video, such as requesting a summary or generating a quiz or documentation.
-Users can also export the chat in various formats or the transcribed video with subtitles applied.
+In an age where video content dominates our digital interactions, finding key information within hours of footage can feel like searching for a needle in a haystack. VideoWise transforms the way you manage and interact with video content by making it **searchable**, **interactive**, and **insightful**. Whether you’re navigating a training session, analyzing a lecture, or creating engaging content, VideoWise makes working with videos more efficient and effective.\
+<br>
+At its core, VideoWise provides a web application to upload videos, which are then transcribed using [WhisperX](https://github.com/m-bain/whisperX, a highly efficient and accurate tool based on the [Whisper](https://github.com/openai/whisper) OpenAI model. Each sentence is tied to a precise timestamp, enabling effortless navigation through hours of content without the frustration of scrubbing timelines.\
+Going beyond transcription, **VideoWise** integrates with [Ollama](https://github.com/ollama/ollama), enabling users to interact with an AI assistant to ask questions about the video, generate summaries, or even create quizzes and documentation. Export options let users save the AI-powered chats in various formats or download the transcribed video with subtitles applied.
 ## Key Features
 - Upload videos to the app
 - Transcribe and translate videos using the WhisperX model in one of the currently available languages, which are `{en, fr, de, es, it, ja, zh, nl, uk, pt}`
-- Associate transcribed sentences with their relative timestamps for easy navigation
+- Automatically associate transcribed sentences with their relative timestamps for easy navigation
 - Communicate with an AI using Ollama to ask questions about the transcribed video
 - Export the chat in various formats or the transcribed video with subtitles
 ## Setup
@@ -81,5 +82,5 @@ The modular setup allows more flexibility and is ideal for separating services o
      docker build -t videowise-ui-client .
      docker run -d --name videowise-ui-client -p 80:80 videowise-ui-client
      ```
-     
+![Centered Logo](./videowise-ui-client/videowise_ui.png)
      
