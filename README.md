@@ -1,33 +1,50 @@
 ![Centered Logo](./videowise-ui-client/VideoWiseLogoNewFont.png)
-# VideoWise
+## Table of Contents
+1. [Introduction](#videowise)
+2. [Key Features](#key-features)
+3. [Setup](#setup)
+   - [Requirements](#requirements)
+   - [Installation](#installation)
+     - [Simple Setup](#1-simple-setup)
+     - [Modular Setup](#2-modular-setup)
+4. [How to Use](#how-to-use)
+5. [Technical Details](#technical-details)
+6. [Limitations](#limitations)
+7. [TODOs](#todos)
+# <a name="videowise"></a>VideoWise
 In an age where video content dominates our digital interactions, finding key information within hours of footage can feel like searching for a needle in a haystack. VideoWise transforms the way you manage and interact with video content by making it **searchable**, **interactive**, and **insightful**. Whether you’re navigating a training session, analyzing a lecture, or creating engaging content, VideoWise makes working with videos more efficient and effective.\
 <br>
 At its core, VideoWise provides a web application to upload videos, which are then transcribed using [WhisperX](https://github.com/m-bain/whisperX, a highly efficient and accurate tool based on the [Whisper](https://github.com/openai/whisper) OpenAI model. Each sentence is tied to a precise timestamp, enabling effortless navigation through hours of content without the frustration of scrubbing timelines.\
 Going beyond transcription, **VideoWise** integrates with [Ollama](https://github.com/ollama/ollama), enabling users to interact with an AI assistant to ask questions about the video, generate summaries, or even create quizzes and documentation. Export options let users save the AI-powered chats in various formats or download the transcribed video with subtitles applied.
-## Key Features
-- Upload videos to the app
-- Transcribe and translate videos using the WhisperX model in one of the currently available languages, which are `{en, fr, de, es, it, ja, zh, nl, uk, pt}`
+## <a name="key-features"></a>Key Features
+- **Seamless Video Uploads**: Quickly upload your videos to get started.
+- **Accurate Transcription and Translation**: WhisperX ensures high-quality transcriptions in multiple languages `(en, fr, de, es, it, ja, zh, nl, uk, pt)`.
 - Automatically associate transcribed sentences with their relative timestamps for easy navigation
 - Communicate with an AI using Ollama to ask questions about the transcribed video
 - Export the chat in various formats or the transcribed video with subtitles
-## Setup
-### Requirements
+
+![Centered Logo](./videowise-ui-client/videowise_ui.png)
+## <a name="setup"></a>Setup
+### <a name="requirements"></a>Requirements
 - **Ollama** (tested with *v0.3.12* and *v0.4.5*)
 - **Docker Desktop** (tested with *v24.0.2*) or **Docker Engine** (tested with *v24.0.7*)
 - **NVIDIA GPU** with installed drivers *[optional]* for optimal transcription performance.
-### Installation
+### <a name="installation"></a>Installation
 **VideoWise** offers two different installation methods:
-#### 1. Simple Setup (Recommended for Quick Start)
+#### 1.<a name="1-simple-setup"></a>Simple Setup (Recommended for Quick Start)
 This method is ideal for users who want a fast and simple installation. It runs the entire application on a single machine.
 #### **Steps**
 1. Install the required dependencies (Ollama and Docker)
 2. Configure the Ollama API URL in the `.env` file. To do so, be sure to substitute `<your_machine_ip>` in `OLLAMA_API_URL` with the actual IP of the machine running Ollama.
-3. Run **Docker Compose** to build and start the application:
+   ```markup
+   OLLAMA_API_URL=http://127.0.0.1:11434/api/chat
+   ```
+4. Run **Docker Compose** to build and start the application:
    ```bash
    docker-compose up --build
    ```
 At the end of the process, you'll be able to access the application on `http://localhost:80`. 
-#### 2. Modular Setup (For Advanced Users) 
+#### <a name="2-modular-setup"></a>2. Modular Setup (For Advanced Users) 
 The modular setup allows more flexibility and is ideal for separating services onto different machines (e.g., running the WhisperX transcription service on a GPU-equipped system). This setup requires manual configuration of each service.
 <br>
 - **Application Modules**
@@ -58,10 +75,10 @@ The modular setup allows more flexibility and is ideal for separating services o
   5. Set up the Environment Variables for the **Main Server**.\
      Edit `/videowise-main-service/Dockerfile`, lines _11-16_ and _37-42_
      ```markdown
-     # ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" \
-     # ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" \
-     # ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" \
-     # ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" \
+     # ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" 
+     # ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" 
+     # ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" 
+     # ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" 
      # ENV WHISPER_API_URL="http://<your_python_service_ip>:8000"
      ```
      uncommenting them and replacing placeholders with the appropriate IP addresses.
@@ -82,5 +99,56 @@ The modular setup allows more flexibility and is ideal for separating services o
      docker build -t videowise-ui-client .
      docker run -d --name videowise-ui-client -p 80:80 videowise-ui-client
      ```
-![Centered Logo](./videowise-ui-client/videowise_ui.png)
+## <a name="how-to-use"></a>How to Use
+1. **Create a new Chat:** Start a new chat by clicking on the _New Chat_ button.
+1. **Upload a Video:** Drag and drop your video file onto the right side of the interface.  
+2. **Transcription:** Wait for the transcription to process.  
+3. **AI Interaction:** Inject video context by checking "Inject Video Context" and ask whatever you like about the video, like generating a summary or a quiz.  
+4. **Export Options:** Save the video with the transcription as subtitles or export AI chat content in PDF, WORD or TXT format.  
+## <a name="technical-details"></a>Technical Details
+- By default, the Python Server employs the `large-v2` model for video transcription. You can change this setting in the following file:
+  ```python
+  # `videowise-python-service/main.py`
+  
+  model_name = "large-v2"  # Default model
+  ```
+ To optimize memory usage, the server automatically clears models from memory after 5 minutes of inactivity. You can adjust this timeout or disable it entirely:
+  ```python
+  # `videowise-python-service/main.py`
+  
+  whisperx_manager = WhisperXModelManager(
+     model_name=model_name,
+     device="cuda" if torch.cuda.is_available() else "cpu",
+     timeout=600 # Set release timeout to 10 minutes
+     auto_release=False # Disable resource auto-release
+  )
+  ```
+- The default Large Language Model (LLM) for AI interactions is set to `"llama3.1:latest"`. You can modify this in the following file:
+   ```java
+  // videowise-main-service/src/main/java/com/resource/OllamaResource.java
+   
+  String model = "llama3.1:latest"; // Employed Model
+  ```
+  The maximum response length is capped at `100.000 tokens` and context length is set to `16.000 tokens`. These can also be adjusted:
+  ```java
+  // videowise-main-service/src/main/java/com/resource/OllamaResource.java
+  
+  options.setNum_predict(32000); // Set max length of response to 32.000
+  options.setNum_ctx(48000); // Set context length to 48.000
+  ```
+## <a name="limitations"></a>Limitations 
+- Speaker diarization (identifying speakers in audio) is currently not supported.
+- Chats are limited to a single video as the context.
+- The system integrates exclusively with Ollama and does not yet support other AI models such as ChatGPT, Gemini, or Claude.
+- Audio file uploads are not supported.
+- Minor bugs may occur as VideoWise is actively under development.
+## <a name="todos"></a>TODOs
+- [ ] Enable multi-video uploads within a single chat.
+- [ ] Add support for popular AI models (e.g., ChatGPT, Gemini, Claude).
+- [ ] Implement speaker diarization.
+- [ ] Add functionality to upload videos directly from YouTube URLs.
+- [ ] Introduce voice chat for real-time interaction with AI.
+- [ ] Support direct uploads of audio files.
+- [ ] Expand question presets for improved AI interactions.
+
      
