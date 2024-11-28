@@ -1,4 +1,9 @@
 ![Centered Logo](./videowise-ui-client/VideoWiseLogoNewFont.png)
+# <a name="videowise"></a>VideoWise
+In an age where video content dominates our digital interactions, finding key information within hours of footage can feel like searching for a needle in a haystack. VideoWise transforms the way you manage and interact with video content by making it **searchable**, **interactive**, and **insightful**. Whether you’re navigating a training session, analyzing a lecture, or creating engaging content, VideoWise makes working with videos more efficient and effective.\
+<br>
+At its core, VideoWise provides a web application to upload videos, which are then transcribed using [WhisperX](https://github.com/m-bain/whisperX, a highly efficient and accurate tool based on the [Whisper](https://github.com/openai/whisper) OpenAI model. Each sentence is tied to a precise timestamp, enabling effortless navigation through hours of content without the frustration of scrubbing timelines.\
+Going beyond transcription, **VideoWise** integrates with [Ollama](https://github.com/ollama/ollama), enabling users to interact with an AI assistant to ask questions about the video, generate summaries, or even create quizzes and documentation. Export options let users save the AI-powered chats in various formats or download the transcribed video with subtitles applied.
 ## Table of Contents
 1. [Introduction](#videowise)
 2. [Key Features](#key-features)
@@ -11,17 +16,12 @@
 5. [Technical Details](#technical-details)
 6. [Limitations](#limitations)
 7. [TODOs](#todos)
-# <a name="videowise"></a>VideoWise
-In an age where video content dominates our digital interactions, finding key information within hours of footage can feel like searching for a needle in a haystack. VideoWise transforms the way you manage and interact with video content by making it **searchable**, **interactive**, and **insightful**. Whether you’re navigating a training session, analyzing a lecture, or creating engaging content, VideoWise makes working with videos more efficient and effective.\
-<br>
-At its core, VideoWise provides a web application to upload videos, which are then transcribed using [WhisperX](https://github.com/m-bain/whisperX, a highly efficient and accurate tool based on the [Whisper](https://github.com/openai/whisper) OpenAI model. Each sentence is tied to a precise timestamp, enabling effortless navigation through hours of content without the frustration of scrubbing timelines.\
-Going beyond transcription, **VideoWise** integrates with [Ollama](https://github.com/ollama/ollama), enabling users to interact with an AI assistant to ask questions about the video, generate summaries, or even create quizzes and documentation. Export options let users save the AI-powered chats in various formats or download the transcribed video with subtitles applied.
 ## <a name="key-features"></a>Key Features
 - **Seamless Video Uploads**: Quickly upload your videos to get started.
 - **Accurate Transcription and Translation**: WhisperX ensures high-quality transcriptions in multiple languages `(en, fr, de, es, it, ja, zh, nl, uk, pt)`.
-- Automatically associate transcribed sentences with their relative timestamps for easy navigation
-- Communicate with an AI using Ollama to ask questions about the transcribed video
-- Export the chat in various formats or the transcribed video with subtitles
+- **Timestamped Navigation**: Automatically associate transcribed sentences with their relative timestamps, enabling effortless navigation through video content.
+- **AI-Powered Interactions**: Communicate with an AI using Ollama to ask questions about the transcribed video, generate summaries, or create quizzes.
+- **Flexible Export Options**: Export AI-powered chats in various formats or download the transcribed video with subtitles applied.
 
 ![Centered Logo](./videowise-ui-client/videowise_ui.png)
 ## <a name="setup"></a>Setup
@@ -100,11 +100,11 @@ The modular setup allows more flexibility and is ideal for separating services o
      docker run -d --name videowise-ui-client -p 80:80 videowise-ui-client
      ```
 ## <a name="how-to-use"></a>How to Use
-1. **Create a new Chat:** Start a new chat by clicking on the _New Chat_ button.
+1. **Create a new Chat:** Begin by clicking on the _New Chat_ button.
 1. **Upload a Video:** Drag and drop your video file onto the right side of the interface.  
-2. **Transcription:** Wait for the transcription to process.  
-3. **AI Interaction:** Inject video context by checking "Inject Video Context" and ask whatever you like about the video, like generating a summary or a quiz.  
-4. **Export Options:** Save the video with the transcription as subtitles or export AI chat content in PDF, WORD or TXT format.  
+2. **Wait for Transcription:** Allow the system to process and transcribe the video content.  
+3. **Interact with AI:** Check the "Inject Video Context" option to provide the AI with video context, then ask questions, generate summaries, or even create quizzes. 
+4. **Export Options:** Export the transcribed video with embedded subtitles or save the AI chat content in PDF, Word, or TXT format. 
 ## <a name="technical-details"></a>Technical Details
 - By default, the Python Server employs the `large-v2` model for video transcription. You can change this setting in the following file:
   ```python
@@ -112,7 +112,7 @@ The modular setup allows more flexibility and is ideal for separating services o
   
   model_name = "large-v2"  # Default model
   ```
- To optimize memory usage, the server automatically clears models from memory after 5 minutes of inactivity. You can adjust this timeout or disable it entirely:
+  To optimize memory usage, the server automatically clears models from memory after 5 minutes of inactivity. You can adjust this timeout or disable it entirely:
   ```python
   # `videowise-python-service/main.py`
   
@@ -124,7 +124,7 @@ The modular setup allows more flexibility and is ideal for separating services o
   )
   ```
 - The default Large Language Model (LLM) for AI interactions is set to `"llama3.1:latest"`. You can modify this in the following file:
-   ```java
+  ```java
   // videowise-main-service/src/main/java/com/resource/OllamaResource.java
    
   String model = "llama3.1:latest"; // Employed Model
