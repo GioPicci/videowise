@@ -9,10 +9,10 @@ WORKDIR /app
 COPY . /app
 
 # ENV variables for the deploy of the standalone service, before build
-#ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" \
-#ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" \
-#ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" \
-#ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" \
+#ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" 
+#ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" 
+#ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" 
+#ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" 
 #ENV WHISPER_API_URL="http://<your_python_service_ip>:8000"
 
 # Grant execution permission to gradlew and build the app
@@ -35,10 +35,10 @@ RUN chmod +x /app/entrypoint.sh
 # EXPOSE 8080
 
 # ENV variables for the deploy of the standalone service, before build
-#ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" \
-#ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" \
-#ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" \
-#ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" \
+#ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" 
+#ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" 
+#ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" 
+#ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" 
 #ENV WHISPER_API_URL="http://<your_python_service_ip>:8000"
 
 # Run the Java application
