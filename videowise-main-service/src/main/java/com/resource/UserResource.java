@@ -46,6 +46,14 @@ public class UserResource {
         userPreference2.setPreferenceValue("true");
         userPreference2.setPreferenceDescription("Show/hide the assistant's message pins on the chat scrollbar");
         userPreference2.persist();
+
+        //UserPreference userPreference3 = new UserPreference();
+        //userPreference.setUserId(user.id);
+        //userPreference.setPreferenceKey("chat-model");
+        //userPreference.setPreferenceValue("llama3.1");
+        //userPreference.setPreferenceDescription("Model used when chatting with the assistant");
+        //userPreference.persist();
+
         return Response.status(200).entity(user).build();
     }
 

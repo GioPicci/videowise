@@ -60,13 +60,21 @@ services:
     depends_on:
       - videowise-db
     environment:
-      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://videowise-db:5432/videowise_db"
-      OLLAMA_API_URL: "${OLLAMA_API_URL}"
-      FILESYSTEM_API_URL: "http://videowise-filesystem-service:8081" #"http://localhost:8080/fsservice"  # Service name will resolve to the container
-      FILESYSTEM_STREAMING_API_URL: "/fsservice"
-      WHISPER_API_URL: "http://videowise-python-service:8000" # Service name will resolve to the container
+      # MANDATORY
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://videowise-db:5432/videowise_db" # DB connection URL
+      OLLAMA_API_URL: "${OLLAMA_API_URL}" # Complete URL to Ollama /api/chat
+      FILESYSTEM_API_URL: "http://videowise-filesystem-service:8081" # Remote Filesystem 
+      FILESYSTEM_STREAMING_API_URL: "/fsservice" # Remote Filesystem via reverse proxy
+      WHISPER_API_URL: "http://videowise-python-service:8000" # Python Server
+      # OPTIONAL
+      WHISPER_MODEL: ${WHISPER_MODEL} # Whisper transcription model
+      OLLAMA_MODEL: ${OLLAMA_MODEL} # Ollama chat model
+      OLLAMA_CTX_LEN: ${OLLAMA_CTX_LEN} # Ollama model context length
+      OLLAMA_MAX_PRED_LEN: ${OLLAMA_MAX_PRED_LEN} # Ollama model max response length
     networks:
       - videowise-network
+    ports:
+      - "8081:8080"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.main.rule=PathPrefix(`/mainservice`)"
@@ -90,6 +98,7 @@ services:
               capabilities: [gpu]
     environment:
       FILESYSTEM_API_URL: "http://videowise-filesystem-service:8081"
+      WHISPER_MODEL: ${WHISPER_MODEL} # Whisper transcription model
     networks:
       - videowise-network
     ports:

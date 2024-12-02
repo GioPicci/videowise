@@ -19,6 +19,10 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip3 install --upgrade pip
 
+# Environment variables used for standalone deploy
+# ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" 
+# ENV WHISPER_MODEL="large-v2"
+
 # Set the working directory
 WORKDIR /app
 

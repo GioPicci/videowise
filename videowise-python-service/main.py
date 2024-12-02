@@ -24,6 +24,7 @@ from threading import Timer
 app = FastAPI(title="WhisperX API")
 
 remote_filesystem_url = os.getenv("FILESYSTEM_API_URL") #"http://192.168.202.45:8081"
+model_name = os.getenv("WHISPER_MODEL")
 
 print("Filesystem API URL:", remote_filesystem_url)
 
@@ -136,7 +137,6 @@ class WhisperXModelManager:
 
 # Load the model once at startup
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model_name = "large-v2"  # Default model
 
 print("WhisperX Models Loading Start")
 whisperx_manager = WhisperXModelManager(

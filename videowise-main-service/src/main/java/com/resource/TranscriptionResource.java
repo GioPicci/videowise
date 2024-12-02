@@ -28,6 +28,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import java.nio.file.Paths;
@@ -62,7 +63,9 @@ public class TranscriptionResource {
     VideoResource videoResource;
 
     private static final Logger logger = Logger.getLogger(TranscriptionResource.class.getName());
-    private static final String model_name = "large-v2";
+
+    @ConfigProperty(name = "quarkus.whisper.\"whisper-model\"")
+    String model_name;
 
 
     @POST
