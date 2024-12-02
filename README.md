@@ -28,10 +28,10 @@ Going beyond transcription, **VideoWise** integrates with [Ollama](https://githu
 ### <a name="requirements"></a>Requirements
 - **Ollama** (tested with *v0.3.12* and *v0.4.5*)
 - **Docker Desktop** (tested with *v24.0.2*) or **Docker Engine** (tested with *v24.0.7*)
-- **NVIDIA GPU** with installed drivers *[optional]* for optimal transcription performance.
+- **[OPTIONAL] NVIDIA GPU** with installed drivers  for optimal transcription performance.
 ### <a name="installation"></a>Installation
 **VideoWise** offers two different installation methods:
-#### 1.<a name="1-simple-setup"></a>Simple Setup (Recommended for Quick Start)
+#### 1. <a name="1-simple-setup"></a>Simple Setup (Recommended for Quick Start)
 This method is ideal for users who want a fast and simple installation. It runs the entire application on a single machine.
 #### **Steps**
 1. Install the required dependencies (Ollama and Docker)
