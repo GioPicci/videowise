@@ -36,11 +36,11 @@ This method is ideal for users who want a fast and simple installation. It runs 
 #### **Steps**
 1. Install the required dependencies (Ollama and Docker)
 2. Configure the Ollama API URL in the `.env` file. To do so, be sure to substitute `<your_machine_ip>` in `OLLAMA_API_URL` with the actual IP of the machine running Ollama, for example:
-   ```markup
+   ```yaml
    OLLAMA_API_URL=http://127.0.0.1:11434/api/chat
    ```
 3. **[OPTIONAL]** Modify the WhisperX and Ollama configuration in the `.env` file.
-   ```markup
+   ```yaml
    # WhisperX Configuration
    WHISPER_MODEL="large-v2" # Whisper transcription model, available models are {tiny, base, small, medium, large-v2, large-v3}
 
@@ -49,7 +49,7 @@ This method is ideal for users who want a fast and simple installation. It runs 
    OLLAMA_CTX_LEN=16000 # Ollama model context length
    OLLAMA_MAX_PRED_LEN=4000 # Ollama model max response length
    ```
-5. Run **Docker Compose** to build and start the application. Include `--profile gpu` if your machine has a NVIDIA GPU:
+5. Run **Docker Compose** to build and start the application. Include `--profile gpu` if your machine mounts a NVIDIA GPU:
    ```bash
    docker-compose --profile gpu up --build
    ```
@@ -67,31 +67,31 @@ The modular setup allows more flexibility and is ideal for separating services o
   1. Install **Docker** on every machine where a service will run and **Ollama** on the one that will provide the AI chat functionality. 
   2. Deploy the **Database Service**
      - Navigate to the Database service directory and run the provided script:
-     ```bash
-     cd videowise-db
-     ./start_db.sh
-     ```
+       ```bash
+       cd videowise-db
+       ./start_db.sh
+       ```
   3. Deploy the **FileSystem Service**
      - Navigate to the FileSystem service directory and build the Docker image:
-     ```bash
-     cd videowise-filesystem-service
-     docker build -t videowise-filesystem-service .
-     ```
+       ```bash
+       cd videowise-filesystem-service
+       docker build -t videowise-filesystem-service .
+       ```
      - Run the service, mounting the `uploads` directory for persistent storage:
-     ```bash
-     docker run -d \
-        --name videowise-filesystem-service \
-        -v $(pwd)/videowise-filesystem-service/uploads:/app/uploads \
-        -p 8081:8081 \
-        videowise-filesystem-service
-     ```
+       ```bash
+       docker run -d \
+              --name videowise-filesystem-service \
+              -v $(pwd)/videowise-filesystem-service/uploads:/app/uploads \
+              -p 8081:8081 \
+              videowise-filesystem-service
+       ```
   4. Configure and Deploy the Python Service
      1. Set the required environment variables for the Python Service:
         - Edit `/videowise-python-service/Dockerfile`,  and uncomment the following lines (_23-24_)
-        ```markdown
-        # ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" 
-        # ENV WHISPER_MODEL="large-v2"
-        ```
+          ```yaml
+          ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" 
+          ENV WHISPER_MODEL="large-v2"
+          ```
         - Replace `<your_fs_service_ip>` with the IP address of the machine running the FileSystem service.
      2. Build the Docker image:
         ```bash
@@ -100,37 +100,37 @@ The modular setup allows more flexibility and is ideal for separating services o
         ```
      3. Run the Python service:
         - For machines with a GPU:
-        ```bash
-        docker run -d \
-        --name videowise-python-service \
-        --gpus all \
-        -p 8000:8000 \
-        videowise-python-service
-        ```
+          ```bash
+          docker run -d \
+                 --name videowise-python-service \
+                 --gpus all \
+                 -p 8000:8000 \
+                 videowise-python-service
+          ```
         - For machines without a GPU:
-        ```bash
-        docker run -d \
-        --name videowise-python-service \
-        -p 8000:8000 \
-        videowise-python-service
-        ```
+          ```bash
+          docker run -d \
+                 --name videowise-python-service \
+                 -p 8000:8000 \
+                 videowise-python-service
+          ```
   5. Configure and Deploy the **Main Service**
      1. Set the required environment variables for the Main Service
         - Edit `/videowise-main-service/Dockerfile`and uncomment the lines under:
-        ```markdown
-        # --- External Services ---
-        ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" 
-        ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" 
-        ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" 
-        ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" 
-        ENV WHISPER_API_URL="http://<your_python_service_ip>:8000"
-        # --- WhisperX config ---
-        ENV WHISPER_MODEL="large-v2" 
-        # --- Ollama config ---
-        ENV OLLAMA_MODEL="llama3.1:latest" 
-        ENV OLLAMA_CTX_LEN=16000 
-        ENV OLLAMA_MAX_PRED_LEN=4000 
-        ```
+          ```yaml
+          # --- External Services ---
+          ENV OLLAMA_API_URL="http://<your_ollama_ip>:11434/api/chat" 
+          ENV QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://<your_db_ip>:5432/video_transcriptions_db" 
+          ENV FILESYSTEM_API_URL="http://<your_fs_service_ip>:8081" 
+          ENV FILESYSTEM_STREAMING_API_URL="http://<your_fs_service_ip>:8081" 
+          ENV WHISPER_API_URL="http://<your_python_service_ip>:8000"
+          # --- WhisperX config ---
+          ENV WHISPER_MODEL="large-v2" 
+          # --- Ollama config ---
+          ENV OLLAMA_MODEL="llama3.1:latest" 
+          ENV OLLAMA_CTX_LEN=16000 
+          ENV OLLAMA_MAX_PRED_LEN=4000 
+          ```
         - Replace the placeholders (`<...>`) with the corresponding service IP addresses.
      2. Build the Docker image:
         ```bash
@@ -141,16 +141,16 @@ The modular setup allows more flexibility and is ideal for separating services o
      3. Run the Main service:
         ```bash
         docker run -d \
-        --name videowise-main-service \
-        -p 8080:8080 \
-        videowise-main-service
+               --name videowise-main-service \
+               -p 8080:8080 \
+               videowise-main-service
         ```
   6. Deploy the Web UI Client
      1. Set the environment variable for the Web UI Client:
         - Edit `/videowise-ui-client/Dockerfile` and uncomment the line:
-        ```markdown
-        ENV MAIN_SERVICE_URL="http://<your_main_service_ip>:8080"
-        ```
+          ```yaml
+          ENV MAIN_SERVICE_URL="http://<your_main_service_ip>:8080"
+          ```
         - Replace `<your_main_service_ip>` with the IP address of the machine running the Main Service.
      2. Build the Web UI Client:
         ```bash
@@ -169,7 +169,7 @@ The modular setup allows more flexibility and is ideal for separating services o
 - 💾 **Export Options:** Export the transcribed video with embedded subtitles or save the AI chat content in PDF, Word, or TXT format. 
 ## <a name="technical-details"></a>Technical Details
 - By default, the Python Server employs the `large-v2` model for video transcription. You can change this setting in the `.env` file ([Simple Setup](#1-simple-setup)), or `videowise-main-service/Dockerfile` ([Modular Setup](#2-modular-setup)):
-  ```python
+  ```yaml
   ENV WHISPER_MODEL="large-v2"
   ```
 - To optimize memory usage, the server automatically clears models from memory after 5 minutes of inactivity. You can adjust the timeout or disable it entirely:
@@ -184,11 +184,11 @@ The modular setup allows more flexibility and is ideal for separating services o
   )
   ```
 - The default Large Language Model (LLM) for AI interactions is set to `"llama3.1:latest"`. You can change this setting in the `.env` file ([Simple Setup](#1-simple-setup)), or `videowise-main-service/Dockerfile` ([Modular Setup](#2-modular-setup)):
-  ```markup
+  ```yaml
   ENV OLLAMA_MODEL="llama3.1:latest" 
   ```
   The maximum response length is capped at `4.000 tokens` and context length is set to `16.000 tokens`. These can also be adjusted:
-  ```markup
+  ```yaml
   ENV OLLAMA_CTX_LEN=16000 
   ENV OLLAMA_MAX_PRED_LEN=4000 
   ```
